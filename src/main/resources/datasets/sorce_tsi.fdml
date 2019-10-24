@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dataset name="sorce_tsi"
+         uri="http://lasp.colorado.edu/lisird/hapi/" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:noNamespaceSchemaLocation="fdml.xsd">
+  <adapter class="latis.input.HapiAdapter"
+           query="id=sorce_tsi_24hr_l3"/>
+
+  <function>
+    <scalar id="time" type="string"/>
+    <scalar id="tsi" type="double"/>
+  </function>
+  
+</dataset>
