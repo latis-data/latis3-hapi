@@ -6,6 +6,9 @@ import java.net.URI
 import latis.data.SampledFunction
 import latis.data.HapiFunction
 
+/**
+ * Adapts a HAPI service as a source of data.
+ */
 class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends Adapter {
   
   def apply(uri: URI): SampledFunction = 
@@ -16,22 +19,6 @@ class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends Adapter {
       config.query
     )
 }
-
-/*
- * need a SampledFunction that can lazily apply ops via the hapi api
- * This can have a config so we can define options
- * 
- * How can we stitch in the TextAdapter capabilities
- * separate parsing from building request
- * 
- * special class for service wrapping adapters?
- * it is unique in that the URL changes based on the operations
- * seems that we need a SF that can build the URL 
- * embed parsing adapter?
- *   
- * 
- * 
- */
 
 //=============================================================================
 
@@ -47,7 +34,7 @@ object HapiAdapter extends AdapterFactory {
     new HapiAdapter(model, new Config(config.properties: _*))
   
   /**
-   * Configuration specific to a TextAdapter.
+   * Configuration specific to a HapiAdapter.
    */
   class Config(properties: (String, String)*) extends TextAdapter.Config(properties: _*) {
     val query: String = getOrElse("query", "")

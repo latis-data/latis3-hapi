@@ -5,6 +5,10 @@ import latis.model.DataType
 import latis.input.Adapter
 import latis.ops.FunctionalAlgebra.ImplicitOps._
 
+/**
+ * Encapsulate a HAPI service as a SampledFunction.
+ * 
+ */
 case class HapiFunction(
   model: DataType, 
   adapter: Adapter,
