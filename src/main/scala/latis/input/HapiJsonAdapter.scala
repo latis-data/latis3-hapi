@@ -12,14 +12,23 @@ import latis.util.ConfigLike
  * Adapter for HAPI JSON datasets.
  */
 class HapiJsonAdapter(model: DataType, config: TextAdapter.Config = new TextAdapter.Config())
-  extends TextAdapter(model) {
+  extends TextAdapter(model, config) {
 
   /**
    * Extract the data values from the given record.
    */
   override def extractValues(record: String): Vector[String] = {
+//    print("ExtractValuesFrom: ")
     println(record)
-    splitAtDelim(record)
+    var values = splitAtDelim(record)
+    if (values.length > 1) {
+      val data1 = values(0).substring(2, values(0).lastIndexOf("\""))
+      val data2 = values(1)
+      val data3 = values(2).substring(0, values(2).indexOf("]"))
+      Vector(data1, data2, data3)
+    } else {
+      values
+    }
   }
 
   /**
@@ -28,8 +37,7 @@ class HapiJsonAdapter(model: DataType, config: TextAdapter.Config = new TextAdap
    * A trailing delimiter will yield an empty string.
    */
   override def splitAtDelim(str: String): Vector[String] =
-    str.trim.split(config.delimiter, -1).toVector
-  //Note, use "-1" so trailing ","s will yield empty strings.
+    str.trim.split(config.delimiter).toVector
   //TODO: StringUtil?
 }
 

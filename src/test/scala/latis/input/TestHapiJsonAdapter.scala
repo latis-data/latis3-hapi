@@ -20,12 +20,11 @@ class TestHapiJsonAdapter extends JUnitSuite {
         Scalar(Metadata("id" -> "Time", "type" -> "string")),
         Tuple(
           Scalar(Metadata("id" -> "Magnitude", "type" -> "float")),
-          Scalar(Metadata("id" -> "dBrms", "type" -> "float")),
-          Scalar(Metadata("id" -> "Nah", "type" -> "float")),
-          Scalar(Metadata("id" -> "Nah2", "type" -> "float"))
+          Scalar(Metadata("id" -> "dBrms", "type" -> "float"))
         )
       )
-      val config = new TextAdapter.Config(/*("dataMarker", "\"data\":[")*/)
+      //val config = new TextAdapter.Config(("dataMarker", "\"data\":["))
+      val config = new TextAdapter.Config("skipLines" -> "24", "dataMarker" -> "\"data\":\\[")
       def adapter = new HapiJsonAdapter(model, config)
     }
 
