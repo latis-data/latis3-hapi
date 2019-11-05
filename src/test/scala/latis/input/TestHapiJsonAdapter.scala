@@ -1,11 +1,10 @@
 package latis.input
 
+import java.net.URI
+
 import latis.metadata.Metadata
 import latis.model._
 import latis.output.TextWriter
-
-import java.net.URI
-
 import org.junit.Test
 import org.scalatest.junit.JUnitSuite
 
@@ -23,12 +22,10 @@ class TestHapiJsonAdapter extends JUnitSuite {
           Scalar(Metadata("id" -> "dBrms", "type" -> "float"))
         )
       )
-      //val config = new TextAdapter.Config(("dataMarker", "\"data\":["))
-      val config = new TextAdapter.Config("skipLines" -> "0", "dataMarker" -> "\"data\":\\[")
-      def adapter = new HapiJsonAdapter(model, config)
+      def adapter = new HapiJsonAdapter(model)
     }
 
     val ds = reader.getDataset
-    TextWriter().write(ds)
+    TextWriter().write(ds) //TODO: assert against values in the dataset?
   }
 }

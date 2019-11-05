@@ -1,17 +1,11 @@
 package latis.input
 
-import java.net.URI
-
-import cats.effect.IO
-import fs2.{Stream, text}
-import latis.data.Sample
-import latis.model.{DataType, Function}
-import latis.util.ConfigLike
+import latis.model.DataType
 
 /**
  * Adapter for HAPI JSON datasets.
  */
-class HapiJsonAdapter(model: DataType, config: TextAdapter.Config = new TextAdapter.Config())
+class HapiJsonAdapter(model: DataType, config: TextAdapter.Config = new TextAdapter.Config("dataMarker" -> "\"data\":\\["))
   extends TextAdapter(model, config) {
 
   /**
@@ -39,7 +33,7 @@ class HapiJsonAdapter(model: DataType, config: TextAdapter.Config = new TextAdap
 
 object HapiJsonAdapter extends AdapterFactory {
 
-  def apply(model: DataType, config: TextAdapter.Config = new TextAdapter.Config()): HapiJsonAdapter =
+  def apply(model: DataType, config: TextAdapter.Config = new TextAdapter.Config("dataMarker" -> "\"data\":\\[")): HapiJsonAdapter =
     new HapiJsonAdapter(model, config)
 
   /**
