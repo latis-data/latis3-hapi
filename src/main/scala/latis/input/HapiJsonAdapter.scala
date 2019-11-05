@@ -17,28 +17,22 @@ class HapiJsonAdapter(model: DataType, config: TextAdapter.Config = new TextAdap
   /**
    * Extract the data values from the given record.
    */
-  override def extractValues(record: String): Vector[String] = {
-//    print("ExtractValuesFrom: ")
-    println(record)
-    var values = splitAtDelim(record)
-    if (values.length > 1) {
-      val data1 = values(0).substring(2, values(0).lastIndexOf("\""))
-      val data2 = values(1)
-      val data3 = values(2).substring(0, values(2).indexOf("]"))
-      Vector(data1, data2, data3)
-    } else {
-      values
-    }
-  }
+  override def extractValues(record: String): Vector[String] =
+    splitAtDelim(record).map(removeBracketsAndQuotes(_))
 
   /**
    * Split the given string based on the configured delimiter.
    * The delimiter can be a regular expression.
-   * A trailing delimiter will yield an empty string.
+   * A trailing delimiter will not yield an empty string.
    */
   override def splitAtDelim(str: String): Vector[String] =
     str.trim.split(config.delimiter).toVector
-  //TODO: StringUtil?
+
+  /**
+   * Remove all square brackets and/or quotes from the edges of a string.
+   */
+  def removeBracketsAndQuotes(str: String): String =
+    str.replaceAll("^(\\[\")|^[\\[\"]|[\"\\]]$|(\"\\])$", "")
 }
 
 //=============================================================================

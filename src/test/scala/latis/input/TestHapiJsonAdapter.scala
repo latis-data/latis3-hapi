@@ -24,7 +24,7 @@ class TestHapiJsonAdapter extends JUnitSuite {
         )
       )
       //val config = new TextAdapter.Config(("dataMarker", "\"data\":["))
-      val config = new TextAdapter.Config("skipLines" -> "24", "dataMarker" -> "\"data\":\\[")
+      val config = new TextAdapter.Config("skipLines" -> "0", "dataMarker" -> "\"data\":\\[")
       def adapter = new HapiJsonAdapter(model, config)
     }
 
