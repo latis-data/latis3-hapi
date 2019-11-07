@@ -18,7 +18,6 @@ lazy val hapi = (project in file("."))
 lazy val commonSettings = compilerFlags ++ Seq(
   libraryDependencies ++= Seq(
     "com.typesafe"    % "config"      % "1.3.4",
-    "junit"           % "junit"       % "4.12"  % Test,
     "org.scalatest"  %% "scalatest"   % "3.0.5" % Test
   )
 )
