@@ -2,9 +2,11 @@ package latis.input
 
 import java.net.URI
 
+import latis.data.{Data, Sample, SeqFunction}
 import latis.metadata.Metadata
 import latis.model._
 import latis.output.TextWriter
+import latis.util.FileUtils
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
 
@@ -12,7 +14,7 @@ class TestHapiJsonAdapter extends FlatSpec {
   
   val reader = new AdaptedDatasetReader {
     //def uri: URI = new URI("https://cdaweb.gsfc.nasa.gov/hapi/data?id=AC_H0_MFI&time.min=2019-01-01&time.max=2019-01-02&parameters=Magnitude,dBrms&format=json")
-    def uri: URI = new URI(s"file:${System.getProperty("user.home")}/git/latis3-hapi/src/test/resources/data/hapi_json_data.txt")
+    def uri: URI = FileUtils.resolvePath("data/hapi_json_data.txt").get.toUri
     def model: DataType = Function(
       Scalar(Metadata("id" -> "Time", "type" -> "string")),
       Tuple(
@@ -25,8 +27,21 @@ class TestHapiJsonAdapter extends FlatSpec {
 
   val ds = reader.getDataset
 
-  "The HAPI JSON dataset" should "be written" in {
-    TextWriter().write(ds) //TODO: match all values in first sample
+  "The first sample in the HAPI JSON dataset" should "contain the following values" in {
+    //TextWriter().write(ds)
+    ds.unsafeForce.data match {
+      case sf: SeqFunction => sf.samples.head match {
+        case Sample(d, r) => (d, r) match {
+          case (List(time), List(mag, dbrms)) => {
+            time should be (Data.StringValue("2019-01-01T00:00:14.000Z"))
+            mag should be (Data.FloatValue(4.566.toFloat))
+            dbrms should be (Data.FloatValue(0.293.toFloat))
+          }
+          case _ => fail("Sample did not contain the expected data.")
+        }
+      }
+      case _ => fail("Could not get samples from the dataset.")
+    }
   }
   
 }
