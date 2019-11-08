@@ -1,0 +1,33 @@
+{
+"HAPI": "2.0",
+"status": {"code": 1200, "message": "OK"},
+"format": "json",
+"parameters": [
+{
+"name": "Time",
+"type": "isotime",
+"units": "UTC",
+"length":24,
+"fill": null
+},
+{
+"name": "Magnitude",
+"type": "double",
+"units": "nT",
+"fill": "-1.0E31",
+"description": "B-field magnitude"
+},
+{
+"name": "dBrms",
+"type": "double",
+"units": "nT",
+"fill": "-1.0E31",
+"description": "RMS of Magnetic Field (16 sec period)"
+}
+],
+"data":[
+["2019-01-01T00:00:14.000Z",4.566,0.293],
+["2019-01-01T00:00:30.000Z",4.461,0.347],
+["2019-01-01T00:00:46.000Z",4.317,0.450]
+]
+}
