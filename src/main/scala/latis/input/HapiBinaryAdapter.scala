@@ -5,7 +5,7 @@ import java.net.URI
 import cats.effect.IO
 import fs2.{Pipe, Stream, text}
 import latis.data.Sample
-import latis.model.{DataType, Function}
+import latis.model.{DataType, Function, Scalar}
 import latis.util.{ConfigLike, StreamUtils}
 
 /**
@@ -22,10 +22,29 @@ class HapiBinaryAdapter(model: DataType)
    * the remaining bytes are padded with ASCII null bytes.)
    */
   def stringLength: Int = 24
+  
+  lazy val blockSize = model.getScalars.map(getSizeInBytes(_))
+  
+  def getSizeInBytes(s: Scalar): Int = {
+    s("type") match {
+      //case Some("boolean")    => ???
+      //case Some("char")       => ???
+      case Some("short")      => ???
+      case Some("int")        => ???
+      case Some("long")       => 8
+      case Some("float")      => ???
+      case Some("double")     => 8
+      case Some("string")     => stringLength
+      //TODO: binary blob
+      //TODO: class, e.g. latis.time.Time?
+      case Some(s) => ??? //unsupported type s
+      case None => ??? //type not defined
+    }
+  }
 
   /**
-   * Provide a Stream of records as Strings.
-   * Apply configuration options to the Stream.
+   * Provides a Stream of records as Strings.
+   * Applies configuration options to the Stream.
    */
   def recordStream(uri: URI): Stream[IO, Vector[Byte]] = {
     
@@ -42,8 +61,8 @@ class HapiBinaryAdapter(model: DataType)
 
 
   /**
-   * Parse a record into a Sample. 
-   * Return None if the record is invalid.
+   * Parses a record into a Sample. 
+   * Returns None if the record is invalid.
    */
   def parseRecord(record: Vector[Byte]): Option[Sample] = {
     // We assume one value for each scalar in the model.
