@@ -3,7 +3,7 @@ package latis.input
 import java.net.URI
 
 import cats.effect.IO
-import fs2.{Pipe, Stream, text}
+import fs2.{Chunk, Pipe, Stream, text}
 import latis.data.Sample
 import latis.model.{DataType, Function, Scalar}
 import latis.util.{ConfigLike, StreamUtils}
@@ -12,7 +12,7 @@ import latis.util.{ConfigLike, StreamUtils}
  * Adapter for HAPI binary datasets.
  */
 class HapiBinaryAdapter(model: DataType)
-  extends StreamingAdapter[Vector[Byte]] {
+  extends StreamingAdapter[Chunk[Byte]] {
 
   /**
    * Parameters of type string and isotime have a "length" 
@@ -43,17 +43,15 @@ class HapiBinaryAdapter(model: DataType)
    * Provides a Stream of records as Strings.
    * Applies configuration options to the Stream.
    */
-  def recordStream(uri: URI): Stream[IO, Vector[Byte]] = {
+  def recordStream(uri: URI): Stream[IO, Chunk[Byte]] = {
     
     val testStream = StreamSource.getStream(uri)
-      .take(blockSize)
-      .through(text.utf8Decode)
-    
+      .chunkN(blockSize)
     val testSeq = StreamUtils.unsafeStreamToSeq(testStream)
-    
     println(testSeq)
-    
-    ???
+
+    StreamSource.getStream(uri)
+      .chunkN(blockSize)
   }
 
 
@@ -61,7 +59,7 @@ class HapiBinaryAdapter(model: DataType)
    * Parses a record into a Sample. 
    * Returns None if the record is invalid.
    */
-  def parseRecord(record: Vector[Byte]): Option[Sample] = {
+  def parseRecord(record: Chunk[Byte]): Option[Sample] = {
     // We assume one value for each scalar in the model.
     // Note that Samples don't capture nested tuple structure.
     // Assume uncurried model (no nested function), for now.
@@ -95,7 +93,7 @@ class HapiBinaryAdapter(model: DataType)
   /**
    * Extract the data values from the given record.
    */
-  def extractValues(record: Vector[Byte]): Vector[String] =
+  def extractValues(record: Chunk[Byte]): Vector[String] =
     ???
   
 }
