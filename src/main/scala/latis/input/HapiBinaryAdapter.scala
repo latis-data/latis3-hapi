@@ -27,14 +27,14 @@ class HapiBinaryAdapter(model: DataType)
   
   def getSizeInBytes(s: Scalar): Int = {
     s("type") match {
-      //case Some("char")       => 2
-      case Some("short")      => 2
-      case Some("int")        => 4
-      case Some("long")       => 8
-      case Some("float")      => 4
-      case Some("double")     => 8
-      case Some("string")     => stringLength
-      case Some(s) => ??? //unsupported type s
+      //case Some("char")   => 2
+      case Some("short")  => 2
+      case Some("int")    => 4
+      case Some("long")   => 8
+      case Some("float")  => 4
+      case Some("double") => 8
+      case Some("string") => stringLength
+      case Some(_) => ??? //unsupported type
       case None => ??? //type not defined
     }
   }
@@ -46,7 +46,7 @@ class HapiBinaryAdapter(model: DataType)
   def recordStream(uri: URI): Stream[IO, Vector[Byte]] = {
     
     val testStream = StreamSource.getStream(uri)
-      .take(stringLength)
+      .take(blockSize)
       .through(text.utf8Decode)
     
     val testSeq = StreamUtils.unsafeStreamToSeq(testStream)
