@@ -23,20 +23,17 @@ class HapiBinaryAdapter(model: DataType)
    */
   def stringLength: Int = 24
   
-  lazy val blockSize = model.getScalars.map(getSizeInBytes(_))
+  lazy val blockSize: Int = model.getScalars.map(getSizeInBytes(_)).sum
   
   def getSizeInBytes(s: Scalar): Int = {
     s("type") match {
-      //case Some("boolean")    => ???
-      //case Some("char")       => ???
-      case Some("short")      => ???
-      case Some("int")        => ???
+      //case Some("char")       => 2
+      case Some("short")      => 2
+      case Some("int")        => 4
       case Some("long")       => 8
-      case Some("float")      => ???
+      case Some("float")      => 4
       case Some("double")     => 8
       case Some("string")     => stringLength
-      //TODO: binary blob
-      //TODO: class, e.g. latis.time.Time?
       case Some(s) => ??? //unsupported type s
       case None => ??? //type not defined
     }
