@@ -49,6 +49,7 @@ class HapiBinaryAdapter(model: DataType)
       .chunkN(blockSize)
     val testSeq = StreamUtils.unsafeStreamToSeq(testStream)
     println(testSeq)
+    //TODO: remove dev code above this line
 
     StreamSource.getStream(uri)
       .chunkN(blockSize)
@@ -93,9 +94,15 @@ class HapiBinaryAdapter(model: DataType)
   /**
    * Extract the data values from the given record.
    */
-  def extractValues(record: Chunk[Byte]): Vector[String] =
+  def extractValues(record: Chunk[Byte]): Vector[String] = {
+    //Note: All numeric values are little endian (LSB), integers are always signed, and four byte and floating point values are always IEEE 754 double precision values
+    val it = record.iterator
+    val time: String = it.take(stringLength).toArray.map(_.toChar).mkString
+    val mag/*: Float*/ = it.take(4).toArray
+    val dBrms/*: Float*/ = it.take(4).toArray 
+    val empty = it.isEmpty
     ???
-  
+  }
 }
 
 //=============================================================================
