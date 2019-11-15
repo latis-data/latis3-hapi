@@ -1,18 +1,23 @@
 package latis.input
 
 import java.net.URI
+import java.nio.{ByteBuffer, ByteOrder}
 
 import cats.effect.IO
-import fs2.{Chunk, Pipe, Stream, text}
+import fs2.Stream
 import latis.data.Sample
 import latis.model.{DataType, Function, Scalar}
-import latis.util.{ConfigLike, StreamUtils}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Adapter for HAPI binary datasets.
  */
-class HapiBinaryAdapter(model: DataType)
-  extends StreamingAdapter[Chunk[Byte]] {
+class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Iterator[Byte]] {
+  
+  val order = ByteOrder.LITTLE_ENDIAN //all numeric values are little endian (LSB)
+  
+  lazy val blockSize: Int = model.getScalars.map(getSizeInBytes).sum
 
   /**
    * Parameters of type string and isotime have a "length" 
@@ -21,17 +26,21 @@ class HapiBinaryAdapter(model: DataType)
    * (If the string content is less than the length, 
    * the remaining bytes are padded with ASCII null bytes.)
    */
-  def stringLength: Int = 24
+  lazy val stringLength: Int = 24 //TODO: get this from the info header (i.e. "length" metadata)
   
-  lazy val blockSize: Int = model.getScalars.map(getSizeInBytes(_)).sum
-  
+  /**
+   * Gets the number of bytes to read for the given scalar
+   * according to the HAPI specification.
+   * Note that some values deviate from the number of bytes
+   * needed to represent the corresponding primitive type.
+   */
   def getSizeInBytes(s: Scalar): Int = {
     s("type") match {
       //case Some("char")   => 2
       case Some("short")  => 2
-      case Some("int")    => 4
+      case Some("int")    => 8 //not 4 because "four byte and floating point values are always IEEE 754 double precision values"
       case Some("long")   => 8
-      case Some("float")  => 4
+      case Some("float")  => 8 //not 4 because "four byte and floating point values are always IEEE 754 double precision values"
       case Some("double") => 8
       case Some("string") => stringLength
       case Some(_) => ??? //unsupported type
@@ -40,27 +49,19 @@ class HapiBinaryAdapter(model: DataType)
   }
 
   /**
-   * Provides a Stream of records as Strings.
-   * Applies configuration options to the Stream.
+   * Provides a Stream of records as Iterators of bytes.
    */
-  def recordStream(uri: URI): Stream[IO, Chunk[Byte]] = {
-    
-    val testStream = StreamSource.getStream(uri)
-      .chunkN(blockSize)
-    val testSeq = StreamUtils.unsafeStreamToSeq(testStream)
-    println(testSeq)
-    //TODO: remove dev code above this line
-
+  def recordStream(uri: URI): Stream[IO, Iterator[Byte]] =
     StreamSource.getStream(uri)
       .chunkN(blockSize)
-  }
-
-
+      .map(_.iterator)
+  
+  
   /**
    * Parses a record into a Sample. 
    * Returns None if the record is invalid.
    */
-  def parseRecord(record: Chunk[Byte]): Option[Sample] = {
+  def parseRecord(record: Iterator[Byte]): Option[Sample] = {
     // We assume one value for each scalar in the model.
     // Note that Samples don't capture nested tuple structure.
     // Assume uncurried model (no nested function), for now.
@@ -92,41 +93,37 @@ class HapiBinaryAdapter(model: DataType)
   }
 
   /**
-   * Extract the data values from the given record.
+   * Extracts the data values from the given record
+   * as a Vector of strings.
+   * 
+   * TODO: consider a refactor to avoid intermediate string representations
    */
-  def extractValues(record: Chunk[Byte]): Vector[String] = {
-    //Note: All numeric values are little endian (LSB), integers are always signed, and four byte and floating point values are always IEEE 754 double precision values
-    val it = record.iterator
-    val time: String = it.take(stringLength).toArray.map(_.toChar).mkString
-    val mag/*: Float*/ = it.take(4).toArray
-    val dBrms/*: Float*/ = it.take(4).toArray 
-    val empty = it.isEmpty
-    ???
+  def extractValues(record: Iterator[Byte]): Vector[String] = {
+    val vals = new ArrayBuffer[String]
+    
+    model.getScalars.map { s => 
+      s("type") match {
+        case Some("string") => vals += record.take(stringLength).toArray.map(_.toChar).mkString
+        case _ => vals += ByteBuffer.wrap(record.take(getSizeInBytes(s)).toArray).order(order).getDouble.toString //numeric or unsupported type
+        case None => ??? //type not defined
+      }
+    }
+
+    vals.toVector
   }
 }
 
 //=============================================================================
 
-//object HapiBinaryAdapter extends AdapterFactory {
-//
-//  def apply(model: DataType, config: Config = new Config()): HapiBinaryAdapter =
-//    new HapiBinaryAdapter(model, config)
-//
-//  /**
-//   * Constructor used by the AdapterFactory.
-//   */
-//  def apply(model: DataType, config: AdapterConfig): HapiBinaryAdapter =
-//    new HapiBinaryAdapter(model, new Config(config.properties: _*))
-//
-//  /**
-//   * Configuration specific to a HapiBinaryAdapter.
-//   */
-//  class Config(val properties: (String, String)*) extends ConfigLike {
-//    val commentCharacter: Option[String] = get("commentCharacter")
-//    val delimiter: String                = getOrElse("delimiter", ",")
-//    val linesPerRecord: Int              = getOrElse("linesPerRecord", 1)
-//    val linesToSkip: Int                 = getOrElse("skipLines", 0)
-//    val dataMarker: Option[String]       = get("dataMarker")
-//  }
-//
-//}
+object HapiBinaryAdapter extends AdapterFactory {
+
+  def apply(model: DataType): HapiBinaryAdapter =
+    new HapiBinaryAdapter(model)
+
+  /**
+   * Constructor used by the AdapterFactory.
+   */
+  def apply(model: DataType, config: AdapterConfig): HapiBinaryAdapter =
+    new HapiBinaryAdapter(model)
+
+}
