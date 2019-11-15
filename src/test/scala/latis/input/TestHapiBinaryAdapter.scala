@@ -27,15 +27,16 @@ class TestHapiBinaryAdapter extends FlatSpec {
   }
 
   val ds = reader.getDataset
+  //TextWriter().write(ds)
 
   "The first sample in the HAPI Binary dataset" should "contain the correct values" in {
     ds.unsafeForce.data match {
       case sf: SeqFunction => sf.samples.head match {
         case Sample(d, r) => (d, r) match {
           case (List(time), List(mag, dbrms)) =>
-            time should be (Data.StringValue("2019-01-01T00:00:14.000Z"))
-            mag should be (Data.FloatValue(4.566.toFloat))
-            dbrms should be (Data.FloatValue(0.293.toFloat))
+            time should be (Data.StringValue("2019-01-01T00:00:00.000Z"))
+            mag should be (Data.FloatValue(-1.0E31.toFloat))
+            dbrms should be (Data.FloatValue(-1.0E31.toFloat))
           case _ => fail("Sample did not contain the expected data.")
         }
       }
