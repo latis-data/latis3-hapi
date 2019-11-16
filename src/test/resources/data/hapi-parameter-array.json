@@ -1,0 +1,14 @@
+{
+    "name": "proton_spectrum_uncerts",
+    "type": "double",
+    "size": [3],
+    "units": "particles/(sec ster cm^2 keV)",
+    "fill": "-1e31",
+    "bins": [
+        {
+            "name": "energy",
+            "units": "keV",
+            "centers": [ 15, 25, 35 ]
+        }
+    ]
+}

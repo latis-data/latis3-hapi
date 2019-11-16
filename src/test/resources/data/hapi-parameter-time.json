@@ -1,0 +1,7 @@
+{
+    "name": "Time",
+    "type": "isotime",
+    "units": "UTC",
+    "length":24,
+    "fill": null
+}

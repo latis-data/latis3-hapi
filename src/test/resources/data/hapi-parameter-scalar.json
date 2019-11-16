@@ -1,0 +1,7 @@
+{
+    "name": "Np",
+    "type": "double",
+    "units": "#/cc",
+    "fill": "-1.0E31",
+    "description": "Solar Wind Proton Number Density, scalar"
+}

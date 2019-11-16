@@ -1,0 +1,24 @@
+{
+    "HAPI": "2.0",
+    "status": {"code": 1200, "message": "OK"},
+    "parameters": [
+        {
+            "name": "Time",
+            "type": "isotime",
+            "units": "UTC",
+            "length":24,
+            "fill": null
+        },
+        {
+            "name": "Np",
+            "type": "double",
+            "units": "#/cc",
+            "fill": "-1.0E31",
+            "description": "Solar Wind Proton Number Density, scalar"
+        }
+    ],
+    "startDate": "1998-02-04T00:00:31Z",
+    "stopDate": "2019-05-07T23:59:28Z",
+    "resourceURL": "https://cdaweb.sci.gsfc.nasa.gov/misc/Notes.html#AC_H0_SWE",
+    "contact": "voycrs@gmail.com"
+}
