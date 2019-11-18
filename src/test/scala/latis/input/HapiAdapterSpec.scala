@@ -17,27 +17,27 @@ import latis.model.Scalar
 import latis.ops.Selection
 import latis.util.StreamUtils
 
-object HapiAdapterSpec extends FlatSpec {
+class HapiAdapterSpec extends FlatSpec {
 
   val dataset = {
     val model = Function(
       Scalar(Metadata("id" -> "time", "type" -> "string")),
-      Scalar(Metadata("id" -> "tsi_1au", "type" -> "double"))
+      Scalar(Metadata("id" -> "irradiance", "type" -> "double"))
     )
 
     val adapter = new HapiCsvAdapter(
       model,
       new HapiAdapter.Config(
         "class" -> "latis.input.HapiCsvAdapter",
-        "id" -> "sorce_tsi_24hr_l3"
+        "id" -> "nrl2_tsi_P1Y"
       )
     )
 
     val baseUri = new URI("http://lasp.colorado.edu/lisird/hapi/")
 
-    new AdaptedDataset(Metadata("sorce_tsi"), model, adapter, baseUri)
+    new AdaptedDataset(Metadata("nrl2_tsi_P1Y"), model, adapter, baseUri)
   }
-//  val dataset = Dataset.fromName("sorce_tsi") //get from fdml
+
 
   "A hapi csv request with time selections" should "return csv records" in {
     val ds = dataset
@@ -46,8 +46,8 @@ object HapiAdapterSpec extends FlatSpec {
 
     StreamUtils.unsafeHead(ds.samples) match {
       case Sample(DomainData(Text(time)), RangeData(Real(tsi))) =>
-        time should be("2010-01-01T12:00:00.000Z")
-        tsi should be(1360.4905)
+        time should be("2010-07-01T00:00:00.000Z")
+        tsi should be(1360.785400390625)
     }
   }
 
