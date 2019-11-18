@@ -15,6 +15,7 @@ lazy val hapi = (project in file("."))
     libraryDependencies ++= Seq(
       // "io.latis-data"           %% "latis-core"      % latisVersion,
       "org.http4s"             %% "http4s-blaze-client" % http4sVersion,
+      "org.http4s" %% "http4s-circe"        % http4sVersion,
       "io.circe" %% "circe-core"   % circeVersion,
       "io.circe" %% "circe-parser" % circeVersion
     )
