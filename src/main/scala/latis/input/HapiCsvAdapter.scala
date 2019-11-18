@@ -1,6 +1,6 @@
 package latis.input
 
-import latis.model._
+import latis.model.DataType
 
 /**
  * Adapts a HAPI service as a source of data.
