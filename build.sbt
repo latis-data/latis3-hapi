@@ -2,6 +2,7 @@ ThisBuild / organization := "io.latis-data"
 ThisBuild / scalaVersion := "2.12.8"
 
 //val latisVersion    = "3.0.0-SNAPSHOT"
+val http4sVersion     = "0.20.13"
 
 lazy val `latis3-core` = ProjectRef(file("../latis3"), "core")
 
@@ -12,6 +13,7 @@ lazy val hapi = (project in file("."))
     name := "latis3-hapi",
     libraryDependencies ++= Seq(
       // "io.latis-data"           %% "latis-core"      % latisVersion,
+      "org.http4s"             %% "http4s-blaze-client" % http4sVersion,
     )
   )
   
