@@ -12,10 +12,12 @@ import latis.data.Sample
 import latis.data.Text
 import latis.dataset.AdaptedDataset
 import latis.metadata.Metadata
-import latis.model.Function
+import latis.model._
 import latis.model.Scalar
 import latis.ops.Selection
 import latis.util.StreamUtils
+import latis.time.Time
+import latis.output.TextWriter
 
 class HapiAdapterSpec extends FlatSpec {
 
@@ -49,6 +51,25 @@ class HapiAdapterSpec extends FlatSpec {
         time should be("2010-07-01T00:00:00.000Z")
         tsi should be(1360.785400390625)
     }
+  }
+  
+  "A hapi request for vector data" should 
+  "construct the paramaters list with a single parameter for the vector" in {
+    // time -> (A, (V._1, V._2, V._3), B)
+    val model = Function(
+      Time(Metadata("id" -> "time", "type" -> "string", "units" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")),
+      Tuple(
+        Scalar(Metadata("id" -> "A", "type" -> "double")),
+        Tuple(Metadata("V"),
+          Scalar(Metadata("id" -> "V._1", "type" -> "double")),
+          Scalar(Metadata("id" -> "V._2", "type" -> "double")),
+          Scalar(Metadata("id" -> "V._3", "type" -> "double")),
+        ),
+        Scalar(Metadata("id" -> "B", "type" -> "double"))
+      )
+    )
+    
+    HapiAdapter.buildParameterList(model) should be (List("A", "V", "B"))
   }
 
 }
