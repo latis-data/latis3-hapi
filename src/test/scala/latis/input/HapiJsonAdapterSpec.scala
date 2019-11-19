@@ -10,7 +10,7 @@ import latis.util.FileUtils
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
 
-class TestHapiJsonAdapter extends FlatSpec {
+class HapiJsonAdapterSpec extends FlatSpec {
   
   val reader = new AdaptedDatasetReader {
     //def uri: URI = new URI("https://cdaweb.gsfc.nasa.gov/hapi/data?id=AC_H0_MFI&time.min=2019-01-01&time.max=2019-01-02&parameters=Magnitude,dBrms&format=json")
