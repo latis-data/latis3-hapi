@@ -103,9 +103,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
     }
 
     // Project only the variables defined in the model
-    val projection = model.getScalars
-      .drop(1) // time is implicit
-      .map(_.id)
+    val params = HapiAdapter.buildParameterList(model)
       .mkString("parameters=", ",", "")
 
     // Build the query
@@ -113,7 +111,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
       s"id=${config.id}", // Add dataset ID
       s"time.min=${timeFormat.format(startTime)}",
       s"time.max=${timeFormat.format(endTime)}",
-      projection,
+      params,
       s"format=$datasetFormat" // Add dataset format
     ).mkString("&")
   }
@@ -135,4 +133,15 @@ object HapiAdapter {
     }
   }
 
+  /**
+   * Given a FDM model, create a list of variable names
+   * for the HAPI "parameters" query parameter.
+   * Note that vector components with IDs: "foo._1", "foo._2"
+   * will be reduced to a single "foo" parameter.
+   */
+  def buildParameterList(model: DataType): List[String] =
+    model.getScalars
+         .drop(1)    //drop implicit time variable
+         .map(_.id)  //get the IDs
+         .map(_.split("\\._\\d").head).distinct  //reduce vector elements
 }
