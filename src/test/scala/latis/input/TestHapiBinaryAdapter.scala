@@ -17,7 +17,7 @@ class TestHapiBinaryAdapter extends FlatSpec {
     //def uri: URI = FileUtils.resolvePath("data/hapi_binary_data").get.toUri
     def uri: URI = new URI(s"file:${System.getProperty("user.home")}/git/latis3-hapi/src/test/resources/data/hapi_binary_data")
     def model: DataType = Function(
-      Scalar(Metadata("id" -> "Time", "type" -> "string")),
+      Scalar(Metadata("id" -> "Time", "type" -> "string", "length" -> "24")),
       Tuple(
         Scalar(Metadata("id" -> "Magnitude", "type" -> "float")),
         Scalar(Metadata("id" -> "dBrms", "type" -> "float"))

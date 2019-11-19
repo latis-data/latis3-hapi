@@ -5,10 +5,8 @@ import java.nio.{ByteBuffer, ByteOrder}
 
 import cats.effect.IO
 import fs2.Stream
-import latis.data.Sample
+import latis.data.{Data, Sample}
 import latis.model.{DataType, Function, Scalar}
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * Adapter for HAPI binary datasets.
@@ -17,36 +15,7 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Iterator[Byte]
   
   val order = ByteOrder.LITTLE_ENDIAN //all numeric values are little endian (LSB)
   
-  lazy val blockSize: Int = model.getScalars.map(getSizeInBytes).sum
-
-  /**
-   * Parameters of type string and isotime have a "length" 
-   * specified in the info header that indicates how many bytes 
-   * to read for each string value. 
-   * (If the string content is less than the length, 
-   * the remaining bytes are padded with ASCII null bytes.)
-   */
-  lazy val stringLength: Int = 24 //TODO: get this from the info header (i.e. "length" metadata)
-  
-  /**
-   * Gets the number of bytes to read for the given scalar
-   * according to the HAPI specification.
-   * Note that some values deviate from the number of bytes
-   * needed to represent the corresponding primitive type.
-   */
-  def getSizeInBytes(s: Scalar): Int = {
-    s("type") match {
-      //case Some("char")   => 2
-      case Some("short")  => 2
-      case Some("int")    => 8 //not 4 because "four byte and floating point values are always IEEE 754 double precision values"
-      case Some("long")   => 8
-      case Some("float")  => 8 //not 4 because "four byte and floating point values are always IEEE 754 double precision values"
-      case Some("double") => 8
-      case Some("string") => stringLength
-      case Some(_) => ??? //unsupported type
-      case None => ??? //type not defined
-    }
-  }
+  lazy val blockSize: Int = model.getScalars.map(bytesToRead).sum
 
   /**
    * Provides a Stream of records as Iterators of bytes.
@@ -78,38 +47,61 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Iterator[Byte]
     }
 
     // Extract the data values from the record
-    // and split into Vectors of domain and range values.
-    val values = extractValues(record)
-    val (dvals, rvals) = values.splitAt(dtypes.length)
+    // and split into Vectors of domain and range.
+    val data = extractData(record)
+    val (ds, rs) = data.splitAt(dtypes.length)
 
-    // Zip the types with the values, then construct a Sample 
-    // from the parsed domain and range values.
-    if (rtypes.length != rvals.length) None //invalid record
-    else {
-      val ds = (dtypes zip dvals).map(p => p._1.parseValue(p._2))
-      val rs = (rtypes zip rvals).map(p => p._1.parseValue(p._2))
+    // Construct a Sample from the domain and range values.
+    if (rtypes.length != rs.length) None //invalid record
+    else 
       Some(Sample(ds, rs))
-    }
   }
 
   /**
-   * Extracts the data values from the given record
-   * as a Vector of strings.
-   * 
-   * TODO: consider a refactor to avoid intermediate string representations
+   * Extracts the data values from the given record as a List.
    */
-  def extractValues(record: Iterator[Byte]): Vector[String] = {
-    val vals = new ArrayBuffer[String]
-    
+  private def extractData(record: Iterator[Byte]): List[Data] = 
     model.getScalars.map { s => 
       s("type") match {
-        case Some("string") => vals += record.take(stringLength).toArray.map(_.toChar).mkString
-        case _ => vals += ByteBuffer.wrap(record.take(getSizeInBytes(s)).toArray).order(order).getDouble.toString //numeric or unsupported type
+        case Some("string") => Data(record.take(bytesToRead(s)).toArray.map(_.toChar).mkString)
+        case Some("short")  => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble.toShort)
+        case Some("int")    => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble.toInt)
+        case Some("long")   => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble.toLong)
+        case Some("float")  => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble.toFloat)
+        case Some("double") => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble)
+        case Some(_) => ??? //unsupported type
         case None => ??? //type not defined
       }
     }
 
-    vals.toVector
+  /**
+   * Gets the number of bytes to read for the given scalar
+   * according to the HAPI specification.
+   * 
+   * Note that some values deviate from the number of bytes
+   * needed to represent the corresponding primitive type
+   * because four byte and floating point values are always 
+   * IEEE 754 double precision values.
+   * 
+   * Parameters of type string and isotime have a "length" 
+   * specified in the info header that indicates how many bytes 
+   * to read for each string value.
+   */
+  private def bytesToRead(s: Scalar): Int = {
+    s("type") match {
+      //case Some("char")   => 2
+      case Some("short")  => 2
+      case Some("int")    => 8 //not 4
+      case Some("long")   => 8
+      case Some("float")  => 8 //not 4
+      case Some("double") => 8
+      case Some("string") => s("length") match {
+        case Some(l) => l.toInt //TODO: this conversion can fail
+        case None => ??? //cannot determine number of bytes to read
+      }
+      case Some(_) => ??? //unsupported type
+      case None => ??? //type not defined
+    }
   }
 }
 
