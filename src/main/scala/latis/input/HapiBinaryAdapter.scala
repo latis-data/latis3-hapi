@@ -25,7 +25,6 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Iterator[Byte]
       .chunkN(blockSize)
       .map(_.iterator)
   
-  
   /**
    * Parses a record into a Sample. 
    * Returns None if the record is invalid.
