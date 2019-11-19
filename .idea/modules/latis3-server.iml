@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="server [file:/Users/shawnpolson/git/latis3/]" external.linked.project.path="$MODULE_DIR$/../../../latis3/server" external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../latis3/server/target/scala-2.12/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../latis3/server/target/scala-2.12/test-classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../latis3/server">
+      <sourceFolder url="file://$MODULE_DIR$/../../../latis3/server/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../latis3/server/src/main/resources" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../latis3/server/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="latis3-core" exported="" />
+    <orderEntry type="library" name="sbt: org.typelevel:cats-effect_2.12:1.4.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scodec:scodec-bits_2.12:1.1.11:jar" level="project" />
+    <orderEntry type="library" name="sbt: co.fs2:fs2-core_2.12:1.0.5:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.typelevel:macro-compat_2.12:1.1.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.slf4j:slf4j-api:1.7.25:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang.modules:scala-xml_2.12:1.2.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.12.8:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.12.8:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.log4s:log4s_2.12:1.8.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.jline:jline-terminal-jansi:3.12.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.jline:jline-terminal:3.12.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:parboiled_2.12:1.0.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.fusesource.jansi:jansi:1.18:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.eclipse.jetty.alpn:alpn-api:1.1.3.v20160715:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.get-coursier:coursier_2.12:2.0.0-RC3-2:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.get-coursier:coursier-core_2.12:2.0.0-RC3-2:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.get-coursier:coursier-cats-interop_2.12:2.0.0-RC3-2:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.get-coursier:coursier-cache_2.12:2.0.0-RC3-2:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.chrisdavenport:vault_2.12:1.0.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.chrisdavenport:unique_2.12:1.0.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.argonaut:argonaut_2.12:6.2.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.typesafe:config:1.3.4:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.twitter:hpack:1.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.pureconfig:pureconfig_2.12:0.10.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.pureconfig:pureconfig-macros_2.12:0.10.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.pureconfig:pureconfig-generic_2.12:0.10.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.pureconfig:pureconfig-core_2.12:0.10.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.pureconfig:pureconfig-cats-effect_2.12:0.10.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.alexarchambault:argonaut-shapeless_6.2_2.12:1.2.0-M11:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.chuusai:shapeless_2.12:2.3.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: co.fs2:fs2-io_2.12:1.0.5:jar" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="sbt: ch.qos.logback:logback-core:1.2.3:jar" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="sbt: ch.qos.logback:logback-classic:1.2.3:jar" level="project" />
+    <orderEntry type="module" module-name="latis3-service-interface" exported="" />
+    <orderEntry type="library" name="sbt: io.circe:circe-core_2.12:0.12.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.circe:circe-numbers_2.12:0.12.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:blaze-core_2.12:0.14.9:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:blaze-http_2.12:0.14.9:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:http4s-blaze-client_2.12:0.20.13:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:http4s-blaze-core_2.12:0.20.13:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:http4s-blaze-server_2.12:0.20.13:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:http4s-client_2.12:0.20.13:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:http4s-core_2.12:0.20.13:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:http4s-dsl_2.12:0.20.13:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.http4s:http4s-server_2.12:0.20.13:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.typelevel:cats-core_2.12:2.0.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.typelevel:cats-kernel_2.12:2.0.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.typelevel:cats-macros_2.12:2.0.0:jar" level="project" />
+  </component>
+</module>

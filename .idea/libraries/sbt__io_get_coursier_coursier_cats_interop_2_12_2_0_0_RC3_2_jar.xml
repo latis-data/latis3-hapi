@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="sbt: io.get-coursier:coursier-cats-interop_2.12:2.0.0-RC3-2:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/io.get-coursier/coursier-cats-interop_2.12/jars/coursier-cats-interop_2.12-2.0.0-RC3-2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/io.get-coursier/coursier-cats-interop_2.12/srcs/coursier-cats-interop_2.12-2.0.0-RC3-2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

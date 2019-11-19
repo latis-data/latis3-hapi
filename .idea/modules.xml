@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dap2-service-interface.iml" filepath="$PROJECT_DIR$/.idea/modules/dap2-service-interface.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/fdml-validator.iml" filepath="$PROJECT_DIR$/.idea/modules/fdml-validator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/latis3.iml" filepath="$PROJECT_DIR$/.idea/modules/latis3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/latis3-build.iml" filepath="$PROJECT_DIR$/.idea/modules/latis3-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/latis3-core.iml" filepath="$PROJECT_DIR$/.idea/modules/latis3-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/latis3-hapi.iml" filepath="$PROJECT_DIR$/.idea/modules/latis3-hapi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/latis3-hapi-build.iml" filepath="$PROJECT_DIR$/.idea/modules/latis3-hapi-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/latis3-server.iml" filepath="$PROJECT_DIR$/.idea/modules/latis3-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/latis3-service-interface.iml" filepath="$PROJECT_DIR$/.idea/modules/latis3-service-interface.iml" />
+    </modules>
+  </component>
+</project>

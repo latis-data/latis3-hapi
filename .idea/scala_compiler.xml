@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="sbt 1" modules="dap2-service-interface,fdml-validator,latis3-core,latis3-hapi,latis3-server,latis3-service-interface">
+      <option name="higherKinds" value="true" />
+      <option name="deprecationWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="-encoding" />
+        <parameter value="utf-8" />
+        <parameter value="-Ypartial-unification" />
+      </parameters>
+    </profile>
+    <profile name="sbt 2" modules="latis3" />
+  </component>
+</project>
