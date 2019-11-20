@@ -87,7 +87,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
       case o =>
         val msg = s"HapiAdapter is not able to apply the operation: $o"
         throw new UnsupportedOperationException(msg)
-        // We should only be given Ops that pass canHandleOperation
+      // We should only be given Ops that pass canHandleOperation
     }
 
     // Make sure time selection is valid
@@ -103,7 +103,8 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
     }
 
     // Project only the variables defined in the model
-    val params = HapiAdapter.buildParameterList(model)
+    val params = HapiAdapter
+      .buildParameterList(model)
       .mkString("parameters=", ",", "")
 
     // Build the query
@@ -141,7 +142,8 @@ object HapiAdapter {
    */
   def buildParameterList(model: DataType): List[String] =
     model.getScalars
-         .drop(1)    //drop implicit time variable
-         .map(_.id)  //get the IDs
-         .map(_.split("\\._\\d").head).distinct  //reduce vector elements
+      .drop(1) //drop implicit time variable
+      .map(_.id) //get the IDs
+      .map(_.split("\\._\\d").head)
+      .distinct //reduce vector elements
 }
