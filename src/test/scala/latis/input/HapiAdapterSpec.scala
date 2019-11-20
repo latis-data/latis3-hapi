@@ -30,7 +30,6 @@ class HapiAdapterSpec extends FlatSpec {
     val adapter = new HapiCsvAdapter(
       model,
       new HapiAdapter.Config(
-        "class" -> "latis.input.HapiCsvAdapter",
         "id" -> "nrl2_tsi_P1Y"
       )
     )
