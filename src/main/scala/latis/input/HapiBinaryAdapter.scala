@@ -85,10 +85,8 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
    * Gets the number of bytes to read for the given scalar
    * according to the HAPI specification.
    * 
-   * Note that some values deviate from the number of bytes
-   * needed to represent the corresponding primitive type
-   * because four byte and floating point values are always 
-   * IEEE 754 double precision values.
+   * Note that floating point values are always IEEE 754 
+   * double precision values.
    * 
    * Parameters of type string and isotime have a "length" 
    * specified in the info header that indicates how many bytes 
@@ -98,7 +96,7 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
     s("type") match {
       //case Some("char")   => 2
       case Some("short")  => 2
-      case Some("int")    => 8 //not 4
+      case Some("int")    => 4
       case Some("long")   => 8
       case Some("float")  => 8 //not 4
       case Some("double") => 8
