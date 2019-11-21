@@ -3,7 +3,8 @@ package latis.input
 import latis.model.DataType
 
 /**
- * Adapts a HAPI service as a source of data.
+ * Adapts a HAPI service as a source of data
+ * using the csv output option.
  */
 class HapiCsvAdapter(model: DataType, config: HapiAdapter.Config) 
   extends HapiAdapter(model, config) {

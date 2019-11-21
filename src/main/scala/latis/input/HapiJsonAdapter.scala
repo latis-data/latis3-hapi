@@ -3,43 +3,33 @@ package latis.input
 import latis.model.DataType
 
 /**
- * Adapter for HAPI JSON datasets.
+ * Adapts a HAPI service as a source of data
+ * using the json output option.
  */
-class HapiJsonAdapter(model: DataType)
-  extends TextAdapter(model, new TextAdapter.Config("dataMarker" -> "\"data\":\\[")) {
-
+class HapiJsonAdapter(model: DataType, config: HapiAdapter.Config)
+  extends HapiAdapter(model, config) {
+ 
   /**
-   * Extract the data values from the given record.
+   * Defines the Adapter that will be used to parse the
+   * results from the HAPI service call
    */
-  override def extractValues(record: String): Vector[String] =
-    splitAtDelim(record).map(removeBracketsAndQuotes(_))
-
+  def parsingAdapter: Adapter = new JsonArrayAdapter(model)
+  
   /**
-   * Split the given string based on the configured delimiter.
-   * The delimiter can be a regular expression.
-   * A trailing delimiter will not yield an empty string.
+   * Defines the requested data format.
+   * This must be consistent with the parsingAdapter.
    */
-  override def splitAtDelim(str: String): Vector[String] =
-    str.trim.split(",").toVector
-
-  /**
-   * Remove all square brackets and/or quotes from the edges of a string.
-   */
-  def removeBracketsAndQuotes(str: String): String =
-    str.replaceAll("^(\\[\")|^[\\[\"]|[\"\\]]$|(\"\\])$", "")
+  def datasetFormat: String = "json"
 }
 
 //=============================================================================
 
 object HapiJsonAdapter extends AdapterFactory {
 
-  def apply(model: DataType): HapiJsonAdapter =
-    new HapiJsonAdapter(model)
-
   /**
    * Constructor used by the AdapterFactory.
    */
-  def apply(model: DataType, config: AdapterConfig): HapiJsonAdapter =
-    new HapiJsonAdapter(model)
+  def apply(model: DataType, config: AdapterConfig): HapiAdapter = 
+    new HapiJsonAdapter(model, new HapiAdapter.Config(config.properties: _*))
 
 }

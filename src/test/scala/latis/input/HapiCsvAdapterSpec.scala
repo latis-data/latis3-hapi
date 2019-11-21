@@ -19,7 +19,7 @@ import latis.util.StreamUtils
 import latis.time.Time
 import latis.output.TextWriter
 
-class HapiAdapterSpec extends FlatSpec {
+class HapiCsvAdapterSpec extends FlatSpec {
 
   val dataset = {
     val model = Function(
