@@ -73,7 +73,7 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
         case Some("string") => 
           val length = bytesToRead(s)
           val bytes = new Array[Byte](length)
-          buffer.get(bytes, 0, length)
+          buffer.get(bytes)
           Data(new String(bytes, StandardCharsets.UTF_8))
         case Some(_) => ??? //unsupported type
         case None => ??? //type not defined
