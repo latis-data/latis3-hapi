@@ -14,7 +14,7 @@ import latis.dataset.AdaptedDataset
 import latis.ops.Selection
 import latis.data.DomainData
 
-class HapiJsonAdapterSpec extends FlatSpec {
+class TestHapiJsonAdapter extends FlatSpec {
   
   val dataset = {
     val model = Function(
