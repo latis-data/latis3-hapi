@@ -1,6 +1,7 @@
 package latis.input
 
 import java.net.URI
+import java.nio.charset.StandardCharsets
 import java.nio.{ByteBuffer, ByteOrder}
 
 import cats.effect.IO
@@ -11,25 +12,25 @@ import latis.model.{DataType, Function, Scalar}
 /**
  * Adapter for HAPI binary datasets.
  */
-class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Iterator[Byte]] {
+class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
   
   val order = ByteOrder.LITTLE_ENDIAN //all numeric values are little endian (LSB)
   
   lazy val blockSize: Int = model.getScalars.map(bytesToRead).sum
 
   /**
-   * Provides a Stream of records as Iterators of bytes.
+   * Provides a Stream of records as Arrays of bytes.
    */
-  def recordStream(uri: URI): Stream[IO, Iterator[Byte]] =
+  def recordStream(uri: URI): Stream[IO, Array[Byte]] =
     StreamSource.getStream(uri)
       .chunkN(blockSize)
-      .map(_.iterator)
+      .map(_.toArray)
   
   /**
    * Parses a record into a Sample. 
    * Returns None if the record is invalid.
    */
-  def parseRecord(record: Iterator[Byte]): Option[Sample] = {
+  def parseRecord(record: Array[Byte]): Option[Sample] = {
     // We assume one value for each scalar in the model.
     // Note that Samples don't capture nested tuple structure.
     // Assume uncurried model (no nested function), for now.
@@ -59,19 +60,26 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Iterator[Byte]
   /**
    * Extracts the data values from the given record as a List.
    */
-  private def extractData(record: Iterator[Byte]): List[Data] = 
+  private def extractData(record: Array[Byte]): List[Data] = {
+    val buffer = ByteBuffer.wrap(record).order(order)
+    
     model.getScalars.map { s => 
       s("type") match {
-        case Some("string") => Data(record.take(bytesToRead(s)).toArray.map(_.toChar).mkString)
-        case Some("short")  => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble.toShort)
-        case Some("int")    => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble.toInt)
-        case Some("long")   => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble.toLong)
-        case Some("float")  => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble.toFloat)
-        case Some("double") => Data(ByteBuffer.wrap(record.take(bytesToRead(s)).toArray).order(order).getDouble)
+        case Some("short")  => Data(buffer.getDouble.toShort)
+        case Some("int")    => Data(buffer.getDouble.toInt)
+        case Some("long")   => Data(buffer.getDouble.toLong)
+        case Some("float")  => Data(buffer.getDouble.toFloat)
+        case Some("double") => Data(buffer.getDouble)
+        case Some("string") => 
+          val length = bytesToRead(s)
+          val bytes = new Array[Byte](length)
+          buffer.get(bytes, 0, length)
+          Data(new String(bytes, StandardCharsets.UTF_8))
         case Some(_) => ??? //unsupported type
         case None => ??? //type not defined
       }
     }
+  }
 
   /**
    * Gets the number of bytes to read for the given scalar
