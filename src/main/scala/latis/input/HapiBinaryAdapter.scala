@@ -65,10 +65,7 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
     
     model.getScalars.map { s => 
       s("type") match {
-        case Some("short")  => Data(buffer.getDouble.toShort)
-        case Some("int")    => Data(buffer.getDouble.toInt)
-        case Some("long")   => Data(buffer.getDouble.toLong)
-        case Some("float")  => Data(buffer.getDouble.toFloat)
+        case Some("int")    => Data(buffer.getInt)
         case Some("double") => Data(buffer.getDouble)
         case Some("string") => 
           val length = bytesToRead(s)
@@ -94,7 +91,6 @@ class HapiBinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
    */
   private def bytesToRead(s: Scalar): Int = {
     s("type") match {
-      //case Some("char")   => 2
       case Some("short")  => 2
       case Some("int")    => 4
       case Some("long")   => 8
