@@ -21,7 +21,7 @@ class HapiBinaryAdapterSpec extends FlatSpec {
         Scalar(Metadata("id" -> "dBrms", "type" -> "double"))
       )
     )
-    def adapter = new HapiBinaryAdapter(model)
+    def adapter = new BinaryAdapter(model)
   }
 
   val ds = reader.getDataset
