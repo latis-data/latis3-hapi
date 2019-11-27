@@ -34,6 +34,3 @@ object HapiBinaryAdapter extends AdapterFactory {
 
 
 }
-
-
-
