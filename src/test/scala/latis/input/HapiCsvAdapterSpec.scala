@@ -4,7 +4,6 @@ import java.net.URI
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
-
 import latis.data.DomainData
 import latis.data.RangeData
 import latis.data.Real
@@ -15,7 +14,7 @@ import latis.metadata.Metadata
 import latis.model._
 import latis.model.Scalar
 import latis.ops.Selection
-import latis.util.StreamUtils
+import latis.util.{FdmlUtils, StreamUtils}
 import latis.time.Time
 import latis.output.TextWriter
 
@@ -71,4 +70,13 @@ class HapiCsvAdapterSpec extends FlatSpec {
     HapiAdapter.buildParameterList(model) should be (List("A", "V", "B"))
   }
 
+  "A HapiAdapter fdml file" should "validate" in {
+    val fdmlFile = "datasets/sorce_tsi.fdml"
+    FdmlUtils.validateFdml(fdmlFile) match {
+      case Right(_) => //pass
+      case Left(e) =>
+        println(e.getMessage)
+        fail
+    }
+  }
 }
