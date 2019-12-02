@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<dataset name="sorce_tsi"
-         uri="http://lasp.colorado.edu/lisird/hapi/" 
+<dataset id="sorce_tsi"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:noNamespaceSchemaLocation="fdml.xsd">
+         xsi:noNamespaceSchemaLocation="fdml-with-hapi-adapter.xsd">
+
+  <source uri="http://lasp.colorado.edu/lisird/hapi/"/>
+
   <adapter class="latis.input.HapiCsvAdapter"
            id="sorce_tsi_24hr_l3"/>
 
   <function>
     <scalar id="time" type="string"/>
-    <scalar id="tsi_1au" type="double"/>
+    <scalar id="tsi" origName="tsi_1au" type="double"/>
   </function>
   
 </dataset>
