@@ -60,17 +60,17 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
     val timeFormat = TimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 
     // Placeholder for min time
-    var startTime: Long = TimeFormat.parseIso("1900-01-01")
+    var startTime: Long = TimeFormat.parseIso("1900-01-01").getOrElse(???)
     //TODO: default from info
 
     // Placeholder for max time
-    var endTime: Long = TimeFormat.parseIso("2100-01-01")
+    var endTime: Long = TimeFormat.parseIso("2100-01-01").getOrElse(???)
     //TODO: default from info
 
     // Update query info based on each Operation
     ops foreach {
       case Selection("time", op, value) =>
-        val time = TimeFormat.parseIso(value) //ms since 1970
+        val time = TimeFormat.parseIso(value).getOrElse(???) //ms since 1970
         op.head match {
           case '>' =>
             if (time > startTime) startTime = time
