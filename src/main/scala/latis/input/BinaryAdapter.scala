@@ -82,19 +82,13 @@ class BinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
    * Gets the number of bytes to read for the given scalar
    * according to the HAPI specification.
    * 
-   * Note that floating point values are always IEEE 754 
-   * double precision values.
-   * 
    * Parameters of type string and isotime have a "length" 
    * specified in the info header that indicates how many bytes 
    * to read for each string value.
    */
   private def bytesToRead(s: Scalar): Int = {
     s("type") match {
-      case Some("short")  => 2
       case Some("int")    => 4
-      case Some("long")   => 8
-      case Some("float")  => 8 //not 4
       case Some("double") => 8
       case Some("string") => s("length") match {
         case Some(l) => l.toInt //TODO: this conversion can fail
