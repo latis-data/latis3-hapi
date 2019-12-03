@@ -5,9 +5,12 @@ import java.nio.charset.StandardCharsets
 import java.nio.{ByteBuffer, ByteOrder}
 
 import cats.effect.IO
-import fs2.Stream
+import fs2.{Pipe, Stream}
 import latis.data.{Data, Sample}
 import latis.model.{DataType, Function, Scalar}
+import scodec.{Decoder, bits}
+import scodec.stream.decode.StreamDecoder
+import scodec.stream._
 
 /**
  * Adapter for parsing HAPI binary data.
@@ -22,9 +25,45 @@ class BinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
    * Provides a Stream of records as Arrays of bytes.
    */
   def recordStream(uri: URI): Stream[IO, Array[Byte]] =
-    StreamSource.getStream(uri)
-      .chunkN(blockSize)
-      .map(_.toArray)
+    StreamSource.getStream(uri).through(decodeToSample)
+//    StreamSource.getStream(uri)
+//      .chunkN(blockSize)
+//      .map(_.toArray)
+
+  private val decodeToSample: Pipe[IO, Byte, Sample] = 
+    StreamDecoder.many(makeDecoder(model)).toPipeByte
+
+  private def makeDecoder(model: DataType): Decoder[Sample] = {
+    ???
+
+    model.getScalars.map { s =>
+      s("type") match {
+        case Some("int")    => //scodec.codecs.int32 map 
+        case Some("double") => //scodec.codecs.double map //Data.DoubleValue(buffer.getDouble)
+        case Some("string") => ???
+        case Some(_) => ??? //unsupported type
+        case None => ??? //type not defined
+      }
+    }
+    
+    //go through scalars, produce Decorder[Data] for each of them, then have List(s) of Decoder(s) of Data (1 or 2 depending on when I split into domain/range), then
+    //I want Decoder[List[Data]]
+    //TODO: I'll want/need scodec-cats for Sequence;
+    
+    //---idea------
+    //Map through model's scalars gets me List[Decoder[Data]],
+    //with that list x, x.sequence;
+    //that gets me Decoder[List[Data]]
+    //in that Decoder, to partition list of data into domain/range,[siq] map the Sample constructor over all that to end up with Decoder[Sample]
+    //(I might be able to use Traverse instead of Sequence; it would be preferable--because it's equal to a sequence and a map)
+    //TODO: thisDecoder.many should give me StreamDecoder[Sample] ...
+            //one thing that could be done: I can turn a Chunk (using the approach where I chunked by record sizes) into a BitVector, then rather than using stream decoder stuff, I could use decoder on BitVector
+    
+
+  }
+  
+  
+  
   
   /**
    * Parses a record into a Sample. 
@@ -65,13 +104,13 @@ class BinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
     
     model.getScalars.map { s => 
       s("type") match {
-        case Some("int")    => Data(buffer.getInt)
-        case Some("double") => Data(buffer.getDouble)
+        case Some("int")    => Data.IntValue(buffer.getInt)
+        case Some("double") => Data.DoubleValue(buffer.getDouble)
         case Some("string") => 
           val length = bytesToRead(s)
           val bytes = new Array[Byte](length)
           buffer.get(bytes)
-          Data(new String(bytes, StandardCharsets.UTF_8))
+          Data.StringValue(new String(bytes, StandardCharsets.UTF_8))
         case Some(_) => ??? //unsupported type
         case None => ??? //type not defined
       }

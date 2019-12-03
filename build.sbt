@@ -14,10 +14,14 @@ lazy val hapi = (project in file("."))
     name := "latis3-hapi",
     libraryDependencies ++= Seq(
       // "io.latis-data"           %% "latis-core"      % latisVersion,
-      "org.http4s"             %% "http4s-blaze-client" % http4sVersion,
+      "org.http4s" %% "http4s-blaze-client" % http4sVersion,
       "org.http4s" %% "http4s-circe"        % http4sVersion,
-      "io.circe" %% "circe-core"   % circeVersion,
-      "io.circe" %% "circe-parser" % circeVersion
+      "org.scodec" %% "scodec-cats"         % "1.0.0",
+      "org.scodec" %% "scodec-bits"         % "1.1.12",
+      "org.scodec" %% "scodec-core"         % "1.11.4",
+      "org.scodec" %% "scodec-stream"       % "1.2.1",
+      "io.circe"   %% "circe-core"          % circeVersion,
+      "io.circe"   %% "circe-parser"        % circeVersion
     )
   )
   
