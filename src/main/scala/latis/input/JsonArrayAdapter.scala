@@ -6,7 +6,10 @@ import latis.model.DataType
  * Adapter for parsing HAPI JSON data.
  */
 class JsonArrayAdapter(model: DataType)
-  extends TextAdapter(model, new TextAdapter.Config("dataMarker" -> "\"data\":\\[")) {
+    extends TextAdapter(
+      model,
+      new TextAdapter.Config("dataMarker" -> "\"data\":\\[")
+    ) {
 
   /**
    * Extract the data values from the given record.

@@ -7,14 +7,14 @@ import latis.model.DataType
  * using the json output option.
  */
 class HapiJsonAdapter(model: DataType, config: HapiAdapter.Config)
-  extends HapiAdapter(model, config) {
- 
+    extends HapiAdapter(model, config) {
+
   /**
    * Defines the Adapter that will be used to parse the
    * results from the HAPI service call
    */
   def parsingAdapter: Adapter = new JsonArrayAdapter(model)
-  
+
   /**
    * Defines the requested data format.
    * This must be consistent with the parsingAdapter.
@@ -29,7 +29,7 @@ object HapiJsonAdapter extends AdapterFactory {
   /**
    * Constructor used by the AdapterFactory.
    */
-  def apply(model: DataType, config: AdapterConfig): HapiAdapter = 
+  def apply(model: DataType, config: AdapterConfig): HapiAdapter =
     new HapiJsonAdapter(model, new HapiAdapter.Config(config.properties: _*))
 
 }
