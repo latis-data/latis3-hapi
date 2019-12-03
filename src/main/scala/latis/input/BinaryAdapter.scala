@@ -65,13 +65,13 @@ class BinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
     
     model.getScalars.map { s => 
       s("type") match {
-        case Some("int")    => Data(buffer.getInt)
-        case Some("double") => Data(buffer.getDouble)
+        case Some("int")    => Data.IntValue(buffer.getInt)
+        case Some("double") => Data.DoubleValue(buffer.getDouble)
         case Some("string") => 
           val length = bytesToRead(s)
           val bytes = new Array[Byte](length)
           buffer.get(bytes)
-          Data(new String(bytes, StandardCharsets.UTF_8))
+          Data.StringValue(new String(bytes, StandardCharsets.UTF_8))
         case Some(_) => ??? //unsupported type
         case None => ??? //type not defined
       }
