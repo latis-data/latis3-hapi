@@ -152,6 +152,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
 
   /** Gets the time coverage from the HAPI info. */
   //TODO: use the HAPI sampleStartDate and sampleStopDate if available
+  //  See: https://github.com/latis-data/latis3-hapi/issues/9
   def defaultTimeCoverage(): (Long, Long) = {
     val info = readInfo()
     val either = for {
