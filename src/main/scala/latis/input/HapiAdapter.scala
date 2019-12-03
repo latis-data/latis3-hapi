@@ -2,12 +2,18 @@ package latis.input
 
 import java.net.URI
 
+import io.circe._
+import io.circe.parser._
+
 import latis.data.SampledFunction
 import latis.model.DataType
 import latis.ops.Operation
 import latis.ops.Selection
 import latis.time.TimeFormat
 import latis.util.ConfigLike
+import latis.util.LatisException
+import latis.util.NetUtils
+import latis.util.hapi.Info
 
 /**
  * Adapts a HAPI service as a source of data.
@@ -28,6 +34,15 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
   def datasetFormat: String
 
   /**
+   * Saves the base HAPI URI as a string to be used to build requests.
+   * Note, this is only available after the data request has been made.
+   */
+  private var baseUriString: String = _
+
+  /** Defines the format of time strings used by the HAPI API. */
+  val timeFormat: TimeFormat = TimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+
+  /**
    * Applies the given Operations by building and appending
    * a query to the given base URI. The parsingAdapter will
    * be used to request and parse the data into a SampledFunction.
@@ -36,8 +51,13 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
     baseUri: URI,
     ops: Seq[Operation] = Seq.empty
   ): SampledFunction = {
+    baseUriString = baseUri.toString match {
+      // Makes sure the baseUri ends with a separator
+      case s if s.endsWith("/") => s
+      case s                    => s + "/"
+    }
     val query = buildQuery(ops)
-    val uri = new URI(baseUri.toString + "data?" + query) //TODO: make sure baseURI has separator
+    val uri = new URI(baseUriString + "data?" + query)
     parsingAdapter.getData(uri)
   }
 
@@ -56,67 +76,94 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
    * Operations.
    */
   def buildQuery(ops: Seq[Operation]): String = {
-    // Define the format of time strings used by the HAPI API.
-    val timeFormat = TimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 
     // Placeholder for min time
-    var startTime: Long = TimeFormat.parseIso("1900-01-01").getOrElse(???)
-    //TODO: default from info
+    var (startTime, stopTime) = defaultTimeCoverage()
 
-    // Placeholder for max time
-    var endTime: Long = TimeFormat.parseIso("2100-01-01").getOrElse(???)
-    //TODO: default from info
-
-    // Update query info based on each Operation
+    // Updates query info based on each Operation
     ops foreach {
       case Selection("time", op, value) =>
-        val time = TimeFormat.parseIso(value).getOrElse(???) //ms since 1970
+        val time = TimeFormat.parseIso(value).getOrElse {
+          val msg = s"Failed to parse time: $value"
+          throw LatisException(msg)
+        } //ms since 1970
         op.head match {
           case '>' =>
             if (time > startTime) startTime = time
           case '<' =>
-            if (time < endTime) endTime = time
+            if (time < stopTime) stopTime = time
           case '=' =>
             startTime = time
-            endTime = time
+            stopTime = time
           case _ =>
             val msg = s"Unsupported select operator: $op"
-            throw new UnsupportedOperationException(msg)
+            throw LatisException(msg)
         }
       //case Projection(vids @ _*) => vids.mkString("parameters=", ",", "")
       case o =>
         val msg = s"HapiAdapter is not able to apply the operation: $o"
-        throw new UnsupportedOperationException(msg)
+        throw LatisException(msg)
       // We should only be given Ops that pass canHandleOperation
     }
 
-    // Make sure time selection is valid
-    (endTime - startTime) match {
+    // Makes sure time selection is valid
+    (stopTime - startTime) match {
       case n if n < 0 =>
         val msg = "Start time must be less than end time."
-        throw new UnsupportedOperationException(msg)
+        throw LatisException(msg)
       case n if n < 1000 =>
         // Add epsilon if times are within one second
         // CDAWeb seems to require it
-        endTime = startTime + 1000
+        stopTime = startTime + 1000
       case _ => //good to go
     }
 
-    // Project only the variables defined in the model
+    // Projects only the variables defined in the model
     val params = HapiAdapter
       .buildParameterList(model)
       .mkString("parameters=", ",", "")
 
-    // Build the query
+    // Builds the query
     Seq(
       s"id=${config.id}", // Add dataset ID
       s"time.min=${timeFormat.format(startTime)}",
-      s"time.max=${timeFormat.format(endTime)}",
+      s"time.max=${timeFormat.format(stopTime)}",
       params,
       s"format=$datasetFormat" // Add dataset format
     ).mkString("&")
   }
 
+  /** Defines the HAPI info request URI */
+  def infoUri: URI =
+    new URI(baseUriString + "info?" + s"id=${config.id}")
+
+  /** Reads the info response into an Info object. */
+  def readInfo(): Info = {
+    val either = for {
+      s <- NetUtils.readUriIntoString(infoUri)
+      json <- parse(s)
+      info <- Decoder[Info].decodeJson(json)
+    } yield info
+    either.getOrElse {
+      val msg = s"Failed to get info response from $infoUri"
+      throw LatisException(msg)
+    }
+  }
+
+  /** Gets the time coverage from the HAPI info. */
+  //TODO: use the HAPI sampleStartDate and sampleStopDate if available
+  def defaultTimeCoverage(): (Long, Long) = {
+    val info = readInfo()
+    val either = for {
+      start <- timeFormat.parse(info.startDate)
+      stop <- timeFormat.parse(info.stopDate)
+    } yield (start, stop)
+    either.getOrElse {
+      val msg = "Failed to get time coverage from HAPI info"
+      throw LatisException(msg)
+    }
+
+  }
 }
 
 //=============================================================================

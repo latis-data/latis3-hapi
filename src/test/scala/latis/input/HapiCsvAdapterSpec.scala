@@ -4,12 +4,14 @@ import java.net.URI
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
+
 import latis.data.DomainData
 import latis.data.RangeData
 import latis.data.Real
 import latis.data.Sample
 import latis.data.Text
 import latis.dataset.AdaptedDataset
+import latis.dataset.Dataset
 import latis.metadata.Metadata
 import latis.model._
 import latis.model.Scalar
@@ -78,5 +80,11 @@ class HapiCsvAdapterSpec extends FlatSpec {
         println(e.getMessage)
         fail
     }
+  }
+
+  "A HapiAdapter" should "get the default time range from the info" in {
+    val ds = dataset //Dataset.fromName("sorce_tsi")
+      .withOperation(Selection("time", "<", "1611"))
+    ds.unsafeForce.data.samples.length should be (1)
   }
 }
