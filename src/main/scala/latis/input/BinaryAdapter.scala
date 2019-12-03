@@ -8,6 +8,7 @@ import cats.effect.IO
 import fs2.{Pipe, Stream}
 import latis.data.{Data, Sample}
 import latis.model.{DataType, Function, Scalar}
+import scodec.codecs._
 import scodec.{Decoder, bits}
 import scodec.stream.decode.StreamDecoder
 import scodec.stream._
@@ -33,14 +34,20 @@ class BinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
   private val decodeToSample: Pipe[IO, Byte, Sample] = 
     StreamDecoder.many(makeDecoder(model)).toPipeByte
 
+  /**
+   * Makes a Decoder given the dataset's model.
+   * Integers are always signed and four byte.
+   */
   private def makeDecoder(model: DataType): Decoder[Sample] = {
     ???
 
     model.getScalars.map { s =>
       s("type") match {
-        case Some("int")    => //scodec.codecs.int32 map 
-        case Some("double") => //scodec.codecs.double map //Data.DoubleValue(buffer.getDouble)
-        case Some("string") => ???
+        case Some("int")    => int32 map { i => Data.IntValue(i) }
+        case Some("double") => doubleL map { d => Data.DoubleValue(d) } //Data.DoubleValue(buffer.getDouble)
+        case Some("string") =>
+          val length = bytesToRead(s) * 8
+          variableSizeBytes(uint(length), utf8) map { s => Data.StringValue(s) }
         case Some(_) => ??? //unsupported type
         case None => ??? //type not defined
       }
