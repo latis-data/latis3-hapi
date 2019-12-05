@@ -18,8 +18,7 @@ import latis.util.hapi.Info
 /**
  * Adapts a HAPI service as a source of data.
  */
-abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
-    extends Adapter {
+abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends Adapter {
 
   /**
    * Defines the Adapter that will be used to parse the
@@ -81,7 +80,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
     var (startTime, stopTime) = defaultTimeCoverage()
 
     // Updates query info based on each Operation
-    ops foreach {
+    ops.foreach {
       case Selection("time", op, value) =>
         val time = TimeFormat.parseIso(value).getOrElse {
           val msg = s"Failed to parse time: $value"
@@ -94,7 +93,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
             if (time < stopTime) stopTime = time
           case '=' =>
             startTime = time
-            stopTime = time
+            stopTime  = time
           case _ =>
             val msg = s"Unsupported select operator: $op"
             throw LatisException(msg)
@@ -108,10 +107,10 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
 
     // Makes sure time selection is valid
     (stopTime - startTime) match {
-      case n if n < 0 =>
+      case n if (n < 0) =>
         val msg = "Start time must be less than end time."
         throw LatisException(msg)
-      case n if n < 1000 =>
+      case n if (n < 1000) =>
         // Add epsilon if times are within one second
         // CDAWeb seems to require it
         stopTime = startTime + 1000
@@ -140,7 +139,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
   /** Reads the info response into an Info object. */
   def readInfo(): Info = {
     val either = for {
-      s <- NetUtils.readUriIntoString(infoUri)
+      s    <- NetUtils.readUriIntoString(infoUri)
       json <- parse(s)
       info <- Decoder[Info].decodeJson(json)
     } yield info
@@ -157,7 +156,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config)
     val info = readInfo()
     val either = for {
       start <- timeFormat.parse(info.startDate)
-      stop <- timeFormat.parse(info.stopDate)
+      stop  <- timeFormat.parse(info.stopDate)
     } yield (start, stop)
     either.getOrElse {
       val msg = "Failed to get time coverage from HAPI info"

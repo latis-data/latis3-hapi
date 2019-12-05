@@ -10,9 +10,9 @@ import cats.implicits._
 import io.circe.Decoder
 import io.circe.Json
 import org.http4s.Uri
+import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
-import org.http4s.circe._
 
 import latis.dataset.AdaptedDataset
 import latis.dataset.Dataset
@@ -184,7 +184,7 @@ class HapiReader extends DatasetReader {
         val md = makeMetadata(s"${name}._$n", tyName, units, length, fill)
         Scalar(md)
       }
-      Tuple(Metadata("id" -> name), ds:_*)
+      Tuple(Metadata("id" -> name), ds: _*)
   }
 
   /** Constructs a LaTiS Time value from a HAPI parameter. */
@@ -209,7 +209,7 @@ class HapiReader extends DatasetReader {
     case 9  => "yyyy-ddd'Z'"
     case 8  => "yyyy-MM'Z'"
     case 5  => "yyyy'Z'"
-    case _ => throw new RuntimeException("Could not determine time format.")
+    case _  => throw new RuntimeException("Could not determine time format.")
   }
 
   /** Makes LaTiS Metadata from HAPI parameter metadata. */
