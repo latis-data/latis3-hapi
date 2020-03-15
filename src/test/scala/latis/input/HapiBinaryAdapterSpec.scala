@@ -11,9 +11,9 @@ import org.scalatest.Matchers._
 
 class HapiBinaryAdapterSpec extends FlatSpec {
 
+  val uri: URI = FileUtils.resolvePath("data/hapi_binary_data").get.toUri
+
   val reader = new AdaptedDatasetReader {
-    //def uri: URI = new URI("https://cdaweb.gsfc.nasa.gov/hapi/data?id=AC_H0_MFI&time.min=2019-01-01&time.max=2019-01-02&parameters=Magnitude,dBrms&format=binary")
-    def uri: URI = FileUtils.resolvePath("data/hapi_binary_data").get.toUri
     def model: DataType = Function(
       Scalar(Metadata("id" -> "Time", "type" -> "string", "length" -> "24")),
       Tuple(
@@ -21,10 +21,13 @@ class HapiBinaryAdapterSpec extends FlatSpec {
         Scalar(Metadata("id" -> "dBrms", "type" -> "double"))
       )
     )
+
+    def metadata = Metadata("hapi_binary")
+
     def adapter = new BinaryAdapter(model)
   }
 
-  val ds = reader.getDataset
+  val ds = reader.read(uri)
 
   "The first sample in the HAPI Binary dataset" should "contain the correct values" in {
     StreamUtils.unsafeHead(ds.samples) match {
