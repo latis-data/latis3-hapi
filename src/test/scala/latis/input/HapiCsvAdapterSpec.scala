@@ -85,6 +85,6 @@ class HapiCsvAdapterSpec extends FlatSpec {
   "A HapiAdapter" should "get the default time range from the info" in {
     val ds = dataset //Dataset.fromName("sorce_tsi")
       .withOperation(Selection("time", "<", "1611"))
-    ds.unsafeForce.data.samples.length should be (1)
+    ds.unsafeForce.data.length should be (1)
   }
 }
