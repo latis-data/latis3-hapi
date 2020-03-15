@@ -6,7 +6,7 @@ import java.nio.{ByteBuffer, ByteOrder}
 
 import cats.effect.IO
 import fs2.Stream
-import latis.data.{Data, Sample}
+import latis.data.{Data, Datum, Sample}
 import latis.model.{DataType, Function, Scalar}
 
 /**
@@ -60,7 +60,7 @@ class BinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
   /**
    * Extracts the data values from the given record as a List.
    */
-  private def extractData(record: Array[Byte]): List[Data] = {
+  private def extractData(record: Array[Byte]): List[Datum] = {
     val buffer = ByteBuffer.wrap(record).order(order)
     
     model.getScalars.map { s => 
