@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext
 import cats.effect.IO
 import cats.effect.Resource
 import cats.implicits._
+
 import io.circe.Decoder
 import io.circe.Json
 import org.http4s.Uri
@@ -19,6 +20,7 @@ import latis.dataset.Dataset
 import latis.metadata.Metadata
 import latis.model._
 import latis.time.Time
+import latis.util.LatisException
 import latis.util.hapi._
 import latis.util.StreamUtils.contextShift
 
@@ -48,29 +50,35 @@ class HapiReader extends DatasetReader {
    *
    * @param uri URI for HAPI info request for a dataset
    */
-  override def read(uri: URI): Option[Dataset] = for {
-    id      <- getId(uri)
-    json    <- makeInfoRequest(uri) match {
-      case Right(json) => Option(json)
-      case Left(err)   => throw err
-    }
-    _       <- isHapiResponse(json).guard[Option]
-    baseUri <- getBaseUri(uri)
-    info    <- parseInfo(json) match {
-      case Right(info) => Option(info)
-      case Left(err)   => throw err
-    }
-    metadata = Metadata(id)
-    model   <- toModel(info.parameters)
-    adapter  = new HapiCsvAdapter(
-      model,
-      new HapiAdapter.Config(
-        "class" -> "latis.input.HapiCsvAdapter",
-        "id"    -> id
+  override def read(uri: URI): Dataset = {
+    val ds: Option[AdaptedDataset] = for {
+      id      <- getId(uri)
+      json    <- makeInfoRequest(uri) match {
+        case Right(json) => Option(json)
+        case Left(err)   => throw err
+      }
+      _       <- isHapiResponse(json).guard[Option]
+      baseUri <- getBaseUri(uri)
+      info    <- parseInfo(json) match {
+        case Right(info) => Option(info)
+        case Left(err)   => throw err
+      }
+      metadata = Metadata("id" -> id)
+      model   <- toModel(info.parameters)
+      adapter  = new HapiCsvAdapter(
+        model,
+        new HapiAdapter.Config(
+          "class" -> "latis.input.HapiCsvAdapter",
+          "id"    -> id
+        )
       )
-    )
-    dataset  = new AdaptedDataset(metadata, model, adapter, baseUri)
-  } yield dataset
+      dataset  = new AdaptedDataset(metadata, model, adapter, baseUri)
+    } yield dataset
+    ds.getOrElse {
+      val msg = s"Failed to find a DatasetReader for: $uri"
+      throw LatisException(msg)
+    }
+  }
 
   private def httpClient: Resource[IO, Client[IO]] =
     BlazeClientBuilder[IO](ExecutionContext.global).resource
@@ -139,7 +147,7 @@ class HapiReader extends DatasetReader {
     case (t @ Tuple(xs @ _*), p) => if (t.id.isEmpty) {
       // If the tuple's ID is an empty string, it is the anonymous
       // tuple grouping the range variables.
-      Option(Tuple((xs :+ toDataType(p)): _*))
+      Option(Tuple((xs :+ toDataType(p))))
     } else {
       // If the existing tuple has an ID, it came from a vector.
       Option(Tuple(t, toDataType(p)))
@@ -184,7 +192,7 @@ class HapiReader extends DatasetReader {
         val md = makeMetadata(s"${name}._$n", tyName, units, length, fill)
         Scalar(md)
       }
-      Tuple(Metadata("id" -> name), ds: _*)
+      Tuple(Metadata("id" -> name), ds)
   }
 
   /** Constructs a LaTiS Time value from a HAPI parameter. */
