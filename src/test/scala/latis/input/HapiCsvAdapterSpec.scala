@@ -16,7 +16,10 @@ import latis.metadata.Metadata
 import latis.model._
 import latis.model.Scalar
 import latis.ops.Selection
-import latis.util.{FdmlUtils, StreamUtils}
+import latis.util.dap2.parser.ast._
+import latis.util.FdmlUtils
+import latis.util.StreamUtils
+import latis.util.Identifier.IdentifierStringContext
 import latis.time.Time
 import latis.output.TextWriter
 
@@ -37,14 +40,14 @@ class HapiCsvAdapterSpec extends FlatSpec {
 
     val baseUri = new URI("http://lasp.colorado.edu/lisird/hapi/")
 
-    new AdaptedDataset(Metadata("nrl2_tsi_P1Y"), model, adapter, baseUri)
+    new AdaptedDataset(Metadata(id"nrl2_tsi_P1Y"), model, adapter, baseUri)
   }
 
 
   "A hapi csv request with time selections" should "return csv records" in {
     val ds = dataset
-      .withOperation(Selection("time", ">", "2010-01-01"))
-      .withOperation(Selection("time", "<", "2011-01-01"))
+      .withOperation(Selection(id"time", Gt, "2010-01-01"))
+      .withOperation(Selection(id"time", Lt, "2011-01-01"))
 
     StreamUtils.unsafeHead(ds.samples) match {
       case Sample(DomainData(Text(time)), RangeData(Real(tsi))) =>
@@ -60,7 +63,7 @@ class HapiCsvAdapterSpec extends FlatSpec {
       Time(Metadata("id" -> "time", "type" -> "string", "units" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")),
       Tuple(
         Scalar(Metadata("id" -> "A", "type" -> "double")),
-        Tuple(Metadata("V"),
+        Tuple(Metadata(id"V"),
           Scalar(Metadata("id" -> "V._1", "type" -> "double")),
           Scalar(Metadata("id" -> "V._2", "type" -> "double")),
           Scalar(Metadata("id" -> "V._3", "type" -> "double")),
@@ -84,7 +87,7 @@ class HapiCsvAdapterSpec extends FlatSpec {
 
   "A HapiAdapter" should "get the default time range from the info" in {
     val ds = dataset //Dataset.fromName("sorce_tsi")
-      .withOperation(Selection("time", "<", "1611"))
+      .withOperation(Selection(id"time", Lt, "1611"))
     ds.unsafeForce.data.length should be (1)
   }
 }

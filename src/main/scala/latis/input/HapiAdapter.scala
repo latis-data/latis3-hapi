@@ -12,7 +12,6 @@ import latis.ops.Selection
 import latis.time.TimeFormat
 import latis.util.ConfigLike
 import latis.util.dap2.parser.ast._
-import latis.util.Identifier._
 import latis.util.Identifier.IdentifierStringContext
 import latis.util.LatisException
 import latis.util.NetUtils

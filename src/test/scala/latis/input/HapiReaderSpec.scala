@@ -10,6 +10,8 @@ import latis.dataset.Dataset
 import latis.model._
 import latis.ops.Selection
 import latis.time.Time
+import latis.util.dap2.parser.ast._
+import latis.util.Identifier.IdentifierStringContext
 import latis.util.StreamUtils
 import latis.util.hapi._
 
@@ -22,8 +24,8 @@ class HapiReaderSpec extends FlatSpec with Matchers {
 
     val ds = reader.read(uri)
       .getOrElse(fail("Did not get dataset."))
-      .withOperation(Selection("time >= 2010"))
-      .withOperation(Selection("time <  2011"))
+      .withOperation(Selection(id"time", GtEq, "2010"))
+      .withOperation(Selection(id"time", Lt,  "2011"))
 
     ds.id should be ("nrl2_tsi_P1Y")
 

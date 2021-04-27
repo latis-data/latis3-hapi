@@ -9,6 +9,8 @@ import latis.output.TextWriter
 import latis.util.FileUtils
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
+import latis.util.dap2.parser.ast._
+import latis.util.Identifier.IdentifierStringContext
 import latis.util.StreamUtils
 import latis.dataset.AdaptedDataset
 import latis.ops.Selection
@@ -34,15 +36,15 @@ class TestHapiJsonAdapter extends FlatSpec {
 
     val baseUri = new URI("https://cdaweb.gsfc.nasa.gov/hapi/")
 
-    new AdaptedDataset(Metadata("AC_H0_MFI"), model, adapter, baseUri)
+    new AdaptedDataset(Metadata(id"AC_H0_MFI"), model, adapter, baseUri)
   }
 
   
   "A HapiJsonAdapter" should "read a json response" in {
 
     val ds = dataset
-      .withOperation(Selection("time", ">", "2019-01-01T00:00:01"))
-      .withOperation(Selection("time", "<", "2019-01-01T00:00:15"))
+      .withOperation(Selection(id"time", Gt, "2019-01-01T00:00:01"))
+      .withOperation(Selection(id"time", Lt, "2019-01-01T00:00:15"))
 
     StreamUtils.unsafeHead(ds.samples) match {
       case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(db))) =>
