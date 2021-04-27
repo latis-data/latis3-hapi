@@ -20,7 +20,6 @@ import latis.dataset.Dataset
 import latis.metadata.Metadata
 import latis.model._
 import latis.time.Time
-import latis.util.LatisException
 import latis.util.hapi._
 import latis.util.StreamUtils.contextShift
 
@@ -43,42 +42,37 @@ import latis.util.StreamUtils.contextShift
  * - The size of every parameter is undefined (a scalar) or is one
  *   dimensional (a tuple or array).
  */
-class HapiReader extends DatasetReader {
+class HapiReader {
 
   /**
    * Makes a LaTiS Dataset from a HAPI info request.
    *
    * @param uri URI for HAPI info request for a dataset
    */
-  override def read(uri: URI): Dataset = {
-    val ds: Option[AdaptedDataset] = for {
-      id      <- getId(uri)
-      json    <- makeInfoRequest(uri) match {
-        case Right(json) => Option(json)
-        case Left(err)   => throw err
-      }
-      _       <- isHapiResponse(json).guard[Option]
-      baseUri <- getBaseUri(uri)
-      info    <- parseInfo(json) match {
-        case Right(info) => Option(info)
-        case Left(err)   => throw err
-      }
-      metadata = Metadata("id" -> id)
-      model   <- toModel(info.parameters)
-      adapter  = new HapiCsvAdapter(
-        model,
-        new HapiAdapter.Config(
-          "class" -> "latis.input.HapiCsvAdapter",
-          "id"    -> id
-        )
-      )
-      dataset  = new AdaptedDataset(metadata, model, adapter, baseUri)
-    } yield dataset
-    ds.getOrElse {
-      val msg = s"Failed to find a DatasetReader for: $uri"
-      throw LatisException(msg)
+  def read(uri: URI): Option[Dataset] = for {
+    id      <- getId(uri)
+    json    <- makeInfoRequest(uri) match {
+      case Right(json) => Option(json)
+      case Left(err)   => throw err
     }
-  }
+    _       <- isHapiResponse(json).guard[Option]
+    baseUri <- getBaseUri(uri)
+    info    <- parseInfo(json) match {
+      case Right(info) => Option(info)
+      case Left(err)   => throw err
+    }
+    metadata = Metadata("id" -> id)
+    model   <- toModel(info.parameters)
+    adapter  = new HapiCsvAdapter(
+      model,
+      new HapiAdapter.Config(
+        "class" -> "latis.input.HapiCsvAdapter",
+        "id"    -> id
+      )
+    )
+    dataset  = new AdaptedDataset(metadata, model, adapter, baseUri)
+  } yield dataset
+
 
   private def httpClient: Resource[IO, Client[IO]] =
     BlazeClientBuilder[IO](ExecutionContext.global).resource
