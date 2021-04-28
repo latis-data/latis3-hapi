@@ -12,7 +12,7 @@ import latis.ops.Selection
 import latis.time.TimeFormat
 import latis.util.ConfigLike
 import latis.util.dap2.parser.ast._
-import latis.util.Identifier.IdentifierStringContext
+import latis.util.Identifier
 import latis.util.LatisException
 import latis.util.NetUtils
 import latis.util.hapi.Info
@@ -67,7 +67,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
    * Operation.
    */
   override def canHandleOperation(op: Operation): Boolean = op match {
-    case Selection(id, _, _) if id == id"time" => true
+    case Selection(Identifier("time"), _, _) => true
     //case p: Projection => true
     case _ => false
   }
@@ -83,7 +83,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
 
     // Updates query info based on each Operation
     ops.foreach {
-      case Selection(id, op, value) if id == id"time" =>
+      case Selection(Identifier("time"), op, value) =>
         val time = TimeFormat.parseIso(value).getOrElse {
           val msg = s"Failed to parse time: $value"
           throw LatisException(msg)
