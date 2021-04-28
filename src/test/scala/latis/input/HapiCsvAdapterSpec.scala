@@ -11,7 +11,6 @@ import latis.data.Real
 import latis.data.Sample
 import latis.data.Text
 import latis.dataset.AdaptedDataset
-import latis.dataset.Dataset
 import latis.metadata.Metadata
 import latis.model._
 import latis.model.Scalar
@@ -38,7 +37,7 @@ class HapiCsvAdapterSpec extends FlatSpec {
       )
     )
 
-    val baseUri = new URI("http://lasp.colorado.edu/lisird/hapi/")
+    val baseUri = new URI("https://lasp.colorado.edu/lisird/hapi/")
 
     new AdaptedDataset(Metadata(id"nrl2_tsi_P1Y"), model, adapter, baseUri)
   }
@@ -86,7 +85,7 @@ class HapiCsvAdapterSpec extends FlatSpec {
   }
 
   "A HapiAdapter" should "get the default time range from the info" in {
-    val ds = dataset //Dataset.fromName("sorce_tsi")
+    val ds = dataset
       .withOperation(Selection(id"time", Lt, "1611"))
     ds.unsafeForce.data.length should be (1)
   }

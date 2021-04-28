@@ -41,7 +41,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
   private var baseUriString: String = _
 
   /** Defines the format of time strings used by the HAPI API. */
-  val timeFormat: TimeFormat = TimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+  val timeFormat: TimeFormat = TimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") //TODO: consider relaxing this
 
   /**
    * Applies the given Operations by building and appending
@@ -88,7 +88,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
           val msg = s"Failed to parse time: $value"
           throw LatisException(msg)
         } //ms since 1970
-        op match {
+        op match { //TODO: support GtEq and LtEq?
           case Gt =>
             if (time > startTime) startTime = time
           case Lt =>
@@ -157,8 +157,8 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
   def defaultTimeCoverage(): (Long, Long) = {
     val info = readInfo()
     val either = for {
-      start <- timeFormat.parse(info.startDate)
-      stop  <- timeFormat.parse(info.stopDate)
+      start <- TimeFormat.parseIso(info.startDate)
+      stop  <- TimeFormat.parseIso(info.stopDate)
     } yield (start, stop)
     either.getOrElse {
       val msg = "Failed to get time coverage from HAPI info"

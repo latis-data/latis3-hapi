@@ -128,7 +128,7 @@ class HapiReader {
     // must share the same domain. (We check this by comparing the
     // name of the next parameter's bin to the name of the domain
     // of the function.)
-    case (Function(d: Scalar, r), p: ArrayParameter) if p.bin.name == d.id =>
+    case (Function(d: Scalar, r), p: ArrayParameter) if p.bin.name == d.id.fold("")(_.asString) =>
       val np = ScalarParameter(p.name, p.typeName, p.units, p.length, p.fill)
       val newRange = addParameterToModel(r, np)
       newRange.map(Function(d, _))
