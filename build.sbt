@@ -5,10 +5,7 @@ val latisVersion      = "322efe5e"
 val circeVersion      = "0.13.0"
 val http4sVersion     = "0.21.22"
 
-//lazy val `latis3-core` = ProjectRef(file("../latis3"), "core")
-
 lazy val hapi = (project in file("."))
-//  .dependsOn(`latis3-core`)
   .settings(commonSettings)
   .settings(
     name := "latis3-hapi",
