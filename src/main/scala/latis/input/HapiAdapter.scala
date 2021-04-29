@@ -88,10 +88,10 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
           val msg = s"Failed to parse time: $value"
           throw LatisException(msg)
         } //ms since 1970
-        op match { //TODO: support GtEq and LtEq?
-          case Gt =>
+        op match {
+          case Gt | GtEq =>
             if (time > startTime) startTime = time
-          case Lt =>
+          case Lt | LtEq =>
             if (time < stopTime) stopTime = time
           case Eq =>
             startTime = time
