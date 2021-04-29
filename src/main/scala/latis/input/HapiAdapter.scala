@@ -41,7 +41,9 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
   private var baseUriString: String = _
 
   /** Defines the format of time strings used by the HAPI API. */
-  private val timeFormat: TimeFormat = TimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+  private val timeFormat: TimeFormat = TimeFormat.fromExpression("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    .fold(throw _, identity) //Should be safe
+
 
   /**
    * Applies the given Operations by building and appending
