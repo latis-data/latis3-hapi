@@ -5,12 +5,14 @@ import java.net.URI
 import io.circe._
 import io.circe.parser._
 
-import latis.data.SampledFunction
+import latis.data.Data
 import latis.model.DataType
 import latis.ops.Operation
 import latis.ops.Selection
 import latis.time.TimeFormat
 import latis.util.ConfigLike
+import latis.util.dap2.parser.ast._
+import latis.util.Identifier
 import latis.util.LatisException
 import latis.util.NetUtils
 import latis.util.hapi.Info
@@ -39,7 +41,9 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
   private var baseUriString: String = _
 
   /** Defines the format of time strings used by the HAPI API. */
-  val timeFormat: TimeFormat = TimeFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+  private val timeFormat: TimeFormat = TimeFormat.fromExpression("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    .fold(throw _, identity) //Should be safe
+
 
   /**
    * Applies the given Operations by building and appending
@@ -49,7 +53,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
   override def getData(
     baseUri: URI,
     ops: Seq[Operation] = Seq.empty
-  ): SampledFunction = {
+  ): Data = {
     baseUriString = baseUri.toString match {
       // Makes sure the baseUri ends with a separator
       case s if s.endsWith("/") => s
@@ -65,7 +69,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
    * Operation.
    */
   override def canHandleOperation(op: Operation): Boolean = op match {
-    case Selection("time", _, _) => true
+    case Selection(Identifier("time"), _, _) => true
     //case p: Projection => true
     case _ => false
   }
@@ -81,21 +85,21 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
 
     // Updates query info based on each Operation
     ops.foreach {
-      case Selection("time", op, value) =>
+      case Selection(Identifier("time"), op, value) =>
         val time = TimeFormat.parseIso(value).getOrElse {
           val msg = s"Failed to parse time: $value"
           throw LatisException(msg)
         } //ms since 1970
-        op.head match {
-          case '>' =>
+        op match {
+          case Gt | GtEq =>
             if (time > startTime) startTime = time
-          case '<' =>
+          case Lt | LtEq =>
             if (time < stopTime) stopTime = time
-          case '=' =>
+          case Eq =>
             startTime = time
             stopTime  = time
           case _ =>
-            val msg = s"Unsupported select operator: $op"
+            val msg = s"Unsupported select operator: ${prettyOp(op)}"
             throw LatisException(msg)
         }
       //case Projection(vids @ _*) => vids.mkString("parameters=", ",", "")
@@ -155,8 +159,8 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
   def defaultTimeCoverage(): (Long, Long) = {
     val info = readInfo()
     val either = for {
-      start <- timeFormat.parse(info.startDate)
-      stop  <- timeFormat.parse(info.stopDate)
+      start <- TimeFormat.parseIso(info.startDate)
+      stop  <- TimeFormat.parseIso(info.stopDate)
     } yield (start, stop)
     either.getOrElse {
       val msg = "Failed to get time coverage from HAPI info"
@@ -190,7 +194,7 @@ object HapiAdapter {
   def buildParameterList(model: DataType): List[String] =
     model.getScalars
       .drop(1) //drop implicit time variable
-      .map(_.id) //get the IDs
+      .map(_.id.fold("")(_.asString)) //get the IDs as Strings
       .map(_.split("\\._\\d").head)
       .distinct //reduce vector elements
 }

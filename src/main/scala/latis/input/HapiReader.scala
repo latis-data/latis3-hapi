@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext
 import cats.effect.IO
 import cats.effect.Resource
 import cats.implicits._
+
 import io.circe.Decoder
 import io.circe.Json
 import org.http4s.Uri
@@ -41,14 +42,14 @@ import latis.util.StreamUtils.contextShift
  * - The size of every parameter is undefined (a scalar) or is one
  *   dimensional (a tuple or array).
  */
-class HapiReader extends DatasetReader {
+class HapiReader {
 
   /**
    * Makes a LaTiS Dataset from a HAPI info request.
    *
    * @param uri URI for HAPI info request for a dataset
    */
-  override def read(uri: URI): Option[Dataset] = for {
+  def read(uri: URI): Option[Dataset] = for {
     id      <- getId(uri)
     json    <- makeInfoRequest(uri) match {
       case Right(json) => Option(json)
@@ -60,7 +61,7 @@ class HapiReader extends DatasetReader {
       case Right(info) => Option(info)
       case Left(err)   => throw err
     }
-    metadata = Metadata(id)
+    metadata = Metadata("id" -> id)
     model   <- toModel(info.parameters)
     adapter  = new HapiCsvAdapter(
       model,
@@ -71,6 +72,7 @@ class HapiReader extends DatasetReader {
     )
     dataset  = new AdaptedDataset(metadata, model, adapter, baseUri)
   } yield dataset
+
 
   private def httpClient: Resource[IO, Client[IO]] =
     BlazeClientBuilder[IO](ExecutionContext.global).resource
@@ -126,7 +128,7 @@ class HapiReader extends DatasetReader {
     // must share the same domain. (We check this by comparing the
     // name of the next parameter's bin to the name of the domain
     // of the function.)
-    case (Function(d: Scalar, r), p: ArrayParameter) if p.bin.name == d.id =>
+    case (Function(d: Scalar, r), p: ArrayParameter) if p.bin.name == d.id.fold("")(_.asString) =>
       val np = ScalarParameter(p.name, p.typeName, p.units, p.length, p.fill)
       val newRange = addParameterToModel(r, np)
       newRange.map(Function(d, _))
@@ -139,7 +141,7 @@ class HapiReader extends DatasetReader {
     case (t @ Tuple(xs @ _*), p) => if (t.id.isEmpty) {
       // If the tuple's ID is an empty string, it is the anonymous
       // tuple grouping the range variables.
-      Option(Tuple((xs :+ toDataType(p)): _*))
+      Option(Tuple((xs :+ toDataType(p))))
     } else {
       // If the existing tuple has an ID, it came from a vector.
       Option(Tuple(t, toDataType(p)))
@@ -184,7 +186,7 @@ class HapiReader extends DatasetReader {
         val md = makeMetadata(s"${name}._$n", tyName, units, length, fill)
         Scalar(md)
       }
-      Tuple(Metadata("id" -> name), ds: _*)
+      Tuple(Metadata("id" -> name), ds)
   }
 
   /** Constructs a LaTiS Time value from a HAPI parameter. */

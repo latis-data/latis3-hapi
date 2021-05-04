@@ -2,10 +2,16 @@ package latis.input
 
 import java.net.URI
 
-import latis.data.{DomainData, RangeData, Real, Sample, Text}
+import latis.data.DomainData
+import latis.data.RangeData
+import latis.data.Real
+import latis.data.Sample
+import latis.data.Text
 import latis.metadata.Metadata
 import latis.model._
-import latis.util.{FileUtils, StreamUtils}
+import latis.util.FileUtils
+import latis.util.StreamUtils
+import latis.util.Identifier.IdentifierStringContext
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._
 
@@ -22,7 +28,7 @@ class HapiBinaryAdapterSpec extends FlatSpec {
       )
     )
 
-    def metadata = Metadata("hapi_binary")
+    def metadata = Metadata(id"hapi_binary")
 
     def adapter = new BinaryAdapter(model)
   }
