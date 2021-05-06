@@ -91,7 +91,7 @@ class HapiReader {
   /** Parses dataset ID from a HAPI request. */
   private def getId(infoUri: URI): Option[String] = for {
     query <- Option(infoUri.getQuery())
-    regex  = """id=([^&]+)""".r
+    regex  = """dataset=([^&]+)""".r
     mtch  <- regex.findFirstMatchIn(query)
     id    <- if (mtch.groupCount > 0) Option(mtch.group(1)) else None
   } yield id
