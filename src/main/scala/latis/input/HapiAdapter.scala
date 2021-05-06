@@ -128,9 +128,9 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
 
     // Builds the query
     Seq(
-      s"id=${config.id}", // Add dataset ID
-      s"time.min=${timeFormat.format(startTime)}",
-      s"time.max=${timeFormat.format(stopTime)}",
+      s"dataset=${config.id}", // Add dataset ID
+      s"start=${timeFormat.format(startTime)}",
+      s"stop=${timeFormat.format(stopTime)}",
       params,
       s"format=$datasetFormat" // Add dataset format
     ).mkString("&")
