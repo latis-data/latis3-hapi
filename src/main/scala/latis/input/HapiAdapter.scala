@@ -138,7 +138,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
 
   /** Defines the HAPI info request URI */
   def infoUri: URI =
-    new URI(baseUriString + "info?" + s"id=${config.id}")
+    new URI(baseUriString + "info?" + s"dataset=${config.id}")
 
   /** Reads the info response into an Info object. */
   def readInfo(): Info = {
