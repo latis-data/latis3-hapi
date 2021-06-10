@@ -1,9 +1,9 @@
 ThisBuild / organization := "io.latis-data"
 ThisBuild / scalaVersion := "2.13.5"
 
-val latisVersion  = "fc227ee2"
+val latisVersion  = "8a72a63"
 val circeVersion  = "0.13.0"
-val http4sVersion = "0.21.22"
+val http4sVersion = "0.23.0-RC1"
 
 lazy val hapi = (project in file("."))
   .settings(commonSettings)
