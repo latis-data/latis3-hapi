@@ -20,7 +20,6 @@ import latis.util.FdmlUtils
 import latis.util.StreamUtils
 import latis.util.Identifier.IdentifierStringContext
 import latis.time.Time
-import latis.output.TextWriter
 
 class HapiCsvAdapterSpec extends FlatSpec {
 

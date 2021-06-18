@@ -5,7 +5,6 @@ import java.net.URI
 import latis.data._
 import latis.metadata.Metadata
 import latis.model._
-import latis.output.TextWriter
 import latis.util.FileUtils
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers._

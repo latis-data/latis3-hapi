@@ -6,14 +6,15 @@ import scala.concurrent.ExecutionContext
 
 import cats.effect.IO
 import cats.effect.Resource
-import cats.implicits._
+import cats.effect.unsafe.implicits.global
+import cats.syntax.all._
 
 import io.circe.Decoder
 import io.circe.Json
 import org.http4s.Uri
 import org.http4s.circe._
 import org.http4s.client.Client
-import org.http4s.client.blaze.BlazeClientBuilder
+import org.http4s.blaze.client.BlazeClientBuilder
 
 import latis.dataset.AdaptedDataset
 import latis.dataset.Dataset
@@ -21,7 +22,6 @@ import latis.metadata.Metadata
 import latis.model._
 import latis.time.Time
 import latis.util.hapi._
-import latis.util.StreamUtils.contextShift
 
 /**
  * A reader for datasets accessible though a HAPI service.
