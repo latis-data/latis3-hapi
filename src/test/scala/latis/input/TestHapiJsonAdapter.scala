@@ -2,29 +2,31 @@ package latis.input
 
 import java.net.URI
 
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.Inside.inside
+
 import latis.data._
+import latis.data.DomainData
+import latis.dataset.AdaptedDataset
+import latis.dsl.ModelParser
 import latis.metadata.Metadata
-import latis.model._
-import latis.util.FileUtils
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers._
+import latis.ops.Selection
 import latis.util.dap2.parser.ast._
 import latis.util.Identifier.IdentifierStringContext
 import latis.util.StreamUtils
-import latis.dataset.AdaptedDataset
-import latis.ops.Selection
-import latis.data.DomainData
 
-class TestHapiJsonAdapter extends FlatSpec {
+class TestHapiJsonAdapter extends AnyFlatSpec {
   
-  val dataset = {
-    val model = Function(
-      Scalar(Metadata("id" -> "Time", "type" -> "string")),
-      Tuple(
-        Scalar(Metadata("id" -> "Magnitude", "type" -> "double")),
-        Scalar(Metadata("id" -> "dBrms", "type" -> "double"))
-      )
-    )
+  private lazy val dataset = {
+    val model = ModelParser.unsafeParse("time: string -> (Magnitude: double, dBrms: double)")
+    //  Function(
+    //  Scalar(Metadata("id" -> "Time", "type" -> "string")),
+    //  Tuple(
+    //    Scalar(Metadata("id" -> "Magnitude", "type" -> "double")),
+    //    Scalar(Metadata("id" -> "dBrms", "type" -> "double"))
+    //  )
+    //)
 
     val adapter = new HapiJsonAdapter(
       model,
@@ -45,7 +47,7 @@ class TestHapiJsonAdapter extends FlatSpec {
       .withOperation(Selection(id"time", Gt, "2019-01-01T00:00:01"))
       .withOperation(Selection(id"time", Lt, "2019-01-01T00:00:15"))
 
-    StreamUtils.unsafeHead(ds.samples) match {
+    inside(StreamUtils.unsafeHead(ds.samples)) {
       case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(db))) =>
         time should be("2019-01-01T00:00:14.000Z")
         mag should be(4.566)

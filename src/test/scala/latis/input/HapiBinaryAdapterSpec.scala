@@ -2,41 +2,40 @@ package latis.input
 
 import java.net.URI
 
-import latis.data.DomainData
-import latis.data.RangeData
-import latis.data.Real
-import latis.data.Sample
-import latis.data.Text
+import org.scalatest.EitherValues._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers._
+import org.scalatest.Inside.inside
+
+import latis.data._
 import latis.metadata.Metadata
 import latis.model._
 import latis.util.FileUtils
-import latis.util.StreamUtils
 import latis.util.Identifier.IdentifierStringContext
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers._
+import latis.util.StreamUtils
 
-class HapiBinaryAdapterSpec extends FlatSpec {
+class HapiBinaryAdapterSpec extends AnyFlatSpec {
 
-  val uri: URI = FileUtils.resolvePath("data/hapi_binary_data").get.toUri
+  private lazy val uri: URI = FileUtils.resolvePath("data/hapi_binary_data").get.toUri
 
-  val reader = new AdaptedDatasetReader {
-    def model: DataType = Function(
-      Scalar(Metadata("id" -> "Time", "type" -> "string", "length" -> "24")),
-      Tuple(
-        Scalar(Metadata("id" -> "Magnitude", "type" -> "double")),
-        Scalar(Metadata("id" -> "dBrms", "type" -> "double"))
-      )
-    )
+  private lazy val reader = new AdaptedDatasetReader {
+    def model: DataType = Function.from(
+      Scalar.fromMetadata(Metadata("id" -> "Time", "type" -> "string", "length" -> "24")).value,
+      Tuple.fromElements(
+        Scalar(id"Magnitude", DoubleValueType),
+        Scalar(id"dBrms", DoubleValueType)
+      ).value
+    ).value
 
     def metadata = Metadata(id"hapi_binary")
 
     def adapter = new BinaryAdapter(model)
   }
 
-  val ds = reader.read(uri)
+  private lazy val ds = reader.read(uri)
 
   "The first sample in the HAPI Binary dataset" should "contain the correct values" in {
-    StreamUtils.unsafeHead(ds.samples) match {
+    inside(StreamUtils.unsafeHead(ds.samples)) {
       case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(dbrms))) =>
         time should be ("2019-01-01T00:00:00.000Z")
         mag should be (-1.0E31)
