@@ -6,8 +6,9 @@ import java.nio.{ByteBuffer, ByteOrder}
 
 import cats.effect.IO
 import fs2.Stream
-import latis.data.{Data, Datum, Sample}
-import latis.model.{DataType, Function, Scalar}
+
+import latis.data._
+import latis.model._
 
 /**
  * Adapter for parsing HAPI binary data.
@@ -64,16 +65,15 @@ class BinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
     val buffer = ByteBuffer.wrap(record).order(order)
     
     model.getScalars.map { s => 
-      s("type") match {
-        case Some("int")    => Data.IntValue(buffer.getInt)
-        case Some("double") => Data.DoubleValue(buffer.getDouble)
-        case Some("string") => 
+      s.valueType match {
+        case IntValueType    => Data.IntValue(buffer.getInt)
+        case DoubleValueType => Data.DoubleValue(buffer.getDouble)
+        case StringValueType =>
           val length = bytesToRead(s)
           val bytes = new Array[Byte](length)
           buffer.get(bytes)
           Data.StringValue(new String(bytes, StandardCharsets.UTF_8))
-        case Some(_) => ??? //unsupported type
-        case None => ??? //type not defined
+        case _ => ??? //unsupported type
       }
     }
   }
@@ -87,15 +87,14 @@ class BinaryAdapter(model: DataType) extends StreamingAdapter[Array[Byte]] {
    * to read for each string value.
    */
   private def bytesToRead(s: Scalar): Int = {
-    s("type") match {
-      case Some("int")    => 4
-      case Some("double") => 8
-      case Some("string") => s("length") match {
+    s.valueType match {
+      case IntValueType    => 4
+      case DoubleValueType => 8
+      case StringValueType => s.metadata.getProperty("length") match { //TODO: "size"?
         case Some(l) => l.toInt //TODO: this conversion can fail
         case None => ??? //cannot determine number of bytes to read
       }
-      case Some(_) => ??? //unsupported type
-      case None => ??? //type not defined
+      case _ => ??? //unsupported type
     }
   }
 }

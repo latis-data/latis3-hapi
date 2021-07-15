@@ -194,7 +194,7 @@ object HapiAdapter {
   def buildParameterList(model: DataType): List[String] =
     model.getScalars
       .drop(1) //drop implicit time variable
-      .map(_.id.fold("")(_.asString)) //get the IDs as Strings
+      .map(_.id.asString) //get the IDs as Strings
       .map(_.split("\\._\\d").head)
       .distinct //reduce vector elements
 }

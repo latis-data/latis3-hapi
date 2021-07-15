@@ -1,7 +1,7 @@
 ThisBuild / organization := "io.latis-data"
 ThisBuild / scalaVersion := "2.13.5"
 
-val latisVersion  = "8a72a63"
+val latisVersion  = "f9c06477"
 val circeVersion  = "0.13.0"
 val http4sVersion = "0.23.0-RC1"
 
@@ -24,7 +24,7 @@ lazy val hapi = (project in file("."))
 lazy val commonSettings = compilerFlags ++ Seq(
   libraryDependencies ++= Seq(
     "com.typesafe"    % "config"      % "1.3.4",
-    "org.scalatest"  %% "scalatest"   % "3.0.9" % Test
+    "org.scalatest"  %% "scalatest"   % "3.2.9" % Test
   )
 )
 

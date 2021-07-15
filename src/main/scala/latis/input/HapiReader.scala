@@ -8,7 +8,6 @@ import cats.effect.IO
 import cats.effect.Resource
 import cats.effect.unsafe.implicits.global
 import cats.syntax.all._
-
 import io.circe.Decoder
 import io.circe.Json
 import org.http4s.Uri
@@ -22,6 +21,8 @@ import latis.metadata.Metadata
 import latis.model._
 import latis.time.Time
 import latis.util.hapi._
+import latis.util.Identifier
+import latis.util.LatisException
 
 /**
  * A reader for datasets accessible though a HAPI service.
@@ -118,7 +119,7 @@ class HapiReader {
         rest.foldM(dt)(addParameterToModel)
       }
 
-      range.map(Function(toTime(time), _))
+      range.flatMap(Function.from(toTime(time), _).toOption)
     case _ => None
   }
 
@@ -128,23 +129,23 @@ class HapiReader {
     // must share the same domain. (We check this by comparing the
     // name of the next parameter's bin to the name of the domain
     // of the function.)
-    case (Function(d: Scalar, r), p: ArrayParameter) if p.bin.name == d.id.fold("")(_.asString) =>
+    case (Function(d: Scalar, r), p: ArrayParameter) if p.bin.name == d.id.asString =>
       val np = ScalarParameter(p.name, p.typeName, p.units, p.length, p.fill)
       val newRange = addParameterToModel(r, np)
-      newRange.map(Function(d, _))
+      newRange.flatMap(Function.from(d, _).toOption)
     // Array parameters can only be placed in functions.
     case (_, _: ArrayParameter) => None
     // The next parameter for these cases will either be a scalar
     // or a vector, and both are ok to add if we don't already
     // have a function in the range.
-    case (s: Scalar, p)          => Option(Tuple(s, toDataType(p)))
-    case (t @ Tuple(xs @ _*), p) => if (t.id.isEmpty) {
+    case (s: Scalar, p)          => Tuple.fromElements(s, toDataType(p)).toOption
+    case (t: Tuple, p) => if (t.id.isEmpty) {
       // If the tuple's ID is an empty string, it is the anonymous
       // tuple grouping the range variables.
-      Option(Tuple((xs :+ toDataType(p))))
+      Tuple.fromSeq(t.elements :+ toDataType(p)).toOption
     } else {
       // If the existing tuple has an ID, it came from a vector.
-      Option(Tuple(t, toDataType(p)))
+      Tuple.fromElements(t, toDataType(p)).toOption
     }
     case _ => None
   }
@@ -169,31 +170,34 @@ class HapiReader {
         ScalarParameter(name, tyName, units, length, fill)
       )
 
-      Function(d, r)
+      Function.from(d, r).fold(throw _, identity)
   }
 
   /** Constructs a LaTiS Scalar from a HAPI parameter. */
   private def toScalar(p: ScalarParameter): Scalar = p match {
     case ScalarParameter(name, tyName, units, length, fill) =>
       val md = makeMetadata(name, tyName, units, length, fill)
-      Scalar(md)
+      Scalar.fromMetadata(md).fold(throw _, identity)
   }
 
   /** Constructs a LaTiS Tuple from a HAPI parameter. */
   private def toTuple(p: VectorParameter): Tuple = p match {
     case VectorParameter(name, tyName, units, length, fill, size) =>
       val ds: List[DataType] = List.tabulate(size) { n =>
-        val md = makeMetadata(s"${name}._$n", tyName, units, length, fill)
-        Scalar(md)
+        val md = makeMetadata(s"$name._$n", tyName, units, length, fill)
+        Scalar.fromMetadata(md).fold(throw _, identity)
       }
-      Tuple(Metadata("id" -> name), ds)
+      (for {
+        id  <- Either.fromOption(Identifier.fromString(name), LatisException(s"Invalid Identifier: $name"))
+        tup <- Tuple.fromSeq(id, ds)
+      } yield tup).fold(throw _, identity)
   }
 
   /** Constructs a LaTiS Time value from a HAPI parameter. */
   private def toTime(p: ScalarParameter): Time = p match {
     case ScalarParameter(_, _, _, l @ Some(length), _) =>
       val md = makeMetadata("time", "string", getTimeFormat(length), l, None)
-      Time(md)
+      Time.fromMetadata(md).fold(throw _, identity)
     case _ => throw new RuntimeException("Time parameter requires length.")
   }
 
