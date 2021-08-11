@@ -23,7 +23,7 @@ lazy val hapi = (project in file("."))
   
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.typesafe"    % "config"      % "1.3.4",
+    "com.typesafe"    % "config"      % "1.4.1",
     "org.scalatest"  %% "scalatest"   % "3.2.9" % Test
   ),
   scalacOptions -= "-Xfatal-warnings"
