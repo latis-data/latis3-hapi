@@ -21,26 +21,10 @@ lazy val hapi = (project in file("."))
     )
   )
   
-lazy val commonSettings = compilerFlags ++ Seq(
+lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "com.typesafe"    % "config"      % "1.3.4",
     "org.scalatest"  %% "scalatest"   % "3.2.9" % Test
-  )
-)
-
-lazy val compilerFlags = Seq(
-  scalacOptions ++= Seq(
-    "-deprecation",
-    "-encoding", "utf-8",
-    "-feature",
-    "-language:higherKinds"
   ),
-  Compile / compile / scalacOptions ++= Seq(
-    "-unchecked",
-    "-Xlint",
-    "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-value-discard"
-  )
+  scalacOptions -= "-Xfatal-warnings"
 )
-
