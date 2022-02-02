@@ -1,6 +1,7 @@
 package latis.input
 
 import latis.model.DataType
+import latis.util.hapi.DataCodec
 
 /**
  * Adapts a HAPI service as a source of data
@@ -13,7 +14,7 @@ class HapiBinaryAdapter(model: DataType, config: HapiAdapter.Config)
    * Defines the Adapter that will be used to parse the
    * results from the HAPI service call
    */
-  def parsingAdapter: Adapter = new BinaryAdapter(model)
+  def parsingAdapter: Adapter = new BinaryAdapter(model, DataCodec.hapiCodec)
 
   /**
    * Defines the requested data format.
