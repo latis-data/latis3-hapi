@@ -10,6 +10,7 @@ import org.scalatest.Inside.inside
 import latis.data._
 import latis.metadata.Metadata
 import latis.model._
+import latis.time.Time
 import latis.util.FileUtils
 import latis.util.Identifier.IdentifierStringContext
 import latis.util.StreamUtils
@@ -19,17 +20,18 @@ class HapiBinaryAdapterSpec extends AnyFlatSpec {
   private lazy val uri: URI = FileUtils.resolvePath("data/hapi_binary_data").get.toUri
 
   private lazy val reader = new AdaptedDatasetReader {
+
     def model: DataType = Function.from(
-      Scalar.fromMetadata(Metadata("id" -> "Time", "type" -> "string", "length" -> "24")).value,
+      Time.fromMetadata(Metadata("id" -> "Time", "type" -> "string", "size" -> "24", "units"->"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).value,
       Tuple.fromElements(
         Scalar(id"Magnitude", DoubleValueType),
         Scalar(id"dBrms", DoubleValueType)
       ).value
     ).value
 
-    def metadata = Metadata(id"hapi_binary")
+    def metadata: Metadata = Metadata(id"hapi_binary")
 
-    def adapter = new BinaryAdapter(model)
+    def adapter: Adapter = HapiBinaryAdapter(model, AdapterConfig(("class","HAPI"), ("id","hapi_binary_data"))).parsingAdapter
   }
 
   private lazy val ds = reader.read(uri)
