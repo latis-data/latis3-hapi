@@ -1,7 +1,7 @@
 ThisBuild / organization := "io.latis-data"
 ThisBuild / scalaVersion := "2.13.6"
 
-val latisVersion  = "22d6cb6"
+val latisVersion  = "36032dc"
 val circeVersion  = "0.14.1"
 val http4sVersion = "0.23.1"
 
@@ -23,8 +23,11 @@ lazy val hapi = (project in file("."))
   
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.typesafe"    % "config"      % "1.4.1",
-    "org.scalatest"  %% "scalatest"   % "3.2.9" % Test
+    "com.typesafe"                   % "config"               % "1.4.1",
+    "org.scalatest"                 %% "scalatest"            % "3.2.9" % Test,
+    "org.scalatestplus"             %% "scalacheck-1-15"      % "3.2.11.0" % Test,
+    "org.scalameta"                 %% "munit"                % "0.7.29" % Test,
+    "org.typelevel"                 %% "munit-cats-effect-3"  % "1.0.7" % Test
   ),
   scalacOptions -= "-Xfatal-warnings"
 )
