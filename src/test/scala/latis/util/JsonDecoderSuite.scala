@@ -2,15 +2,12 @@ package latis.util
 
 import scala.io.Source
 
-import io.circe.Decoder
-import io.circe.Json
-import io.circe.parser
-import org.scalatest.flatspec.AnyFlatSpec
+import io.circe._
+import munit.CatsEffectSuite
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.Inside
 
 /** A base class for testing JSON decoders. */
-abstract class JsonDecoderSpec extends AnyFlatSpec with Inside with Matchers {
+abstract class JsonDecoderSuite extends CatsEffectSuite with Matchers {
 
   /**
    * Parses JSON from a file on the classpath.

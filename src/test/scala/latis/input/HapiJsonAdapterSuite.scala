@@ -2,21 +2,17 @@ package latis.input
 
 import java.net.URI
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers._
-import org.scalatest.Inside.inside
+import munit.CatsEffectSuite
 
-import latis.data._
-import latis.data.DomainData
+import latis.data.{DomainData, _}
 import latis.dataset.AdaptedDataset
 import latis.dsl.ModelParser
 import latis.metadata.Metadata
 import latis.ops.Selection
-import latis.util.dap2.parser.ast._
 import latis.util.Identifier.IdentifierStringContext
-import latis.util.StreamUtils
+import latis.util.dap2.parser.ast._
 
-class TestHapiJsonAdapter extends AnyFlatSpec {
+class HapiJsonAdapterSuite extends CatsEffectSuite {
   
   private lazy val dataset = {
     val model = ModelParser.unsafeParse("time: string -> (Magnitude: double, dBrms: double)")
@@ -41,17 +37,20 @@ class TestHapiJsonAdapter extends AnyFlatSpec {
   }
 
   
-  "A HapiJsonAdapter" should "read a json response" in {
+  test("read the correct values of a HAPI json dataset with time selection") {
 
     val ds = dataset
       .withOperation(Selection(id"time", Gt, "2019-01-01T00:00:01"))
       .withOperation(Selection(id"time", Lt, "2019-01-01T00:00:15"))
 
-    inside(StreamUtils.unsafeHead(ds.samples)) {
-      case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(db))) =>
-        time should be("2019-01-01T00:00:14.000Z")
-        mag should be(4.566)
-        db should be(0.293)
+    ds.samples.compile.toList.map { s =>
+      s.head match {
+        case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(db))) =>
+          assertEquals(time, "2019-01-01T00:00:14.000Z")
+          assertEquals(mag, 4.566)
+          assertEquals(db, 0.293)
+        case _ => fail("Sample did not contain the expected data")
+      }
     }
   }
   

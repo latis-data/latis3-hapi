@@ -2,29 +2,21 @@ package latis.input
 
 import java.net.URI
 
+import munit.CatsEffectSuite
 import org.scalatest.EitherValues._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers._
-import org.scalatest.Inside.inside
 
-import latis.data.DomainData
-import latis.data.RangeData
-import latis.data.Real
-import latis.data.Sample
-import latis.data.Text
+import latis.data._
 import latis.dataset.AdaptedDataset
 import latis.dsl.ModelParser
 import latis.metadata.Metadata
 import latis.model._
-import latis.model.Scalar
 import latis.ops.Selection
-import latis.util.dap2.parser.ast._
-import latis.util.FdmlUtils
-import latis.util.StreamUtils
-import latis.util.Identifier.IdentifierStringContext
 import latis.time.Time
+import latis.util.FdmlUtils
+import latis.util.Identifier.IdentifierStringContext
+import latis.util.dap2.parser.ast._
 
-class HapiCsvAdapterSpec extends AnyFlatSpec {
+class HapiCsvAdapterSuite extends CatsEffectSuite {
 
   private lazy val dataset = {
     val model = ModelParser.unsafeParse("time: string -> irradiance: double")
@@ -46,20 +38,23 @@ class HapiCsvAdapterSpec extends AnyFlatSpec {
   }
 
 
-  "A hapi csv request with time selections" should "return csv records" in {
+  test("read the correct values of a HAPI csv dataset with time selection") {
     val ds = dataset
       .withOperation(Selection(id"time", Gt, "2010-01-01"))
       .withOperation(Selection(id"time", Lt, "2011-01-01"))
 
-    inside(StreamUtils.unsafeHead(ds.samples)) {
-      case Sample(DomainData(Text(time)), RangeData(Real(tsi))) =>
-        time should be("2010-07-01T00:00:00.000Z")
-        tsi should be(1360.785400390625)
+    val samples = ds.samples.compile.toList
+    samples.map { s =>
+      s.head match {
+        case Sample(DomainData(Text(time)), RangeData(Real(tsi))) =>
+          assertEquals(time, "2010-07-01T00:00:00.000Z")
+          assertEquals(tsi, 1360.785400390625)
+        case _ => fail("Sample did not contain the expected data")
+      }
     }
   }
   
-  "A hapi request for vector data" should 
-  "construct the paramaters list with a single parameter for the vector" in {
+  test("construct the paramaters list with a single parameter for the vector") {
     // time -> (A, (V._1, V._2, V._3), B)
     val model = Function.from(
       Time.fromMetadata(Metadata("id" -> "time", "type" -> "string", "units" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).value,
@@ -74,22 +69,23 @@ class HapiCsvAdapterSpec extends AnyFlatSpec {
       ).value
     ).value
     
-    HapiAdapter.buildParameterList(model) should be (List("A", "V", "B"))
+    assertEquals(HapiAdapter.buildParameterList(model), List("A", "V", "B"))
   }
 
-  "A HapiAdapter fdml file" should "validate" in {
+  test("validate an fdml file") {
     val fdmlFile = "datasets/sorce_tsi.fdml"
     FdmlUtils.validateFdml(fdmlFile) match {
       case Right(_) => //pass
       case Left(e) =>
         println(e.getMessage)
-        fail()
+        fail("Failed with a Latis Exception: " + e.getMessage)
     }
   }
 
-  "A HapiAdapter" should "get the default time range from the info" in {
+  test("get the default time range from the info") {
     val ds = dataset
       .withOperation(Selection(id"time", Lt, "1611"))
-    ds.unsafeForce().data.length should be (1)
+
+    assertEquals(ds.unsafeForce().data.length, 1)
   }
 }
