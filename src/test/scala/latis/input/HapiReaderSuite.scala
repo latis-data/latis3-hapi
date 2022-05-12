@@ -25,7 +25,7 @@ class HapiReaderSuite extends CatsEffectSuite {
       .withOperation(Selection(id"time", Lt,  "2011"))
 
     ds.id match {
-      case Some(id) => assertEquals (id, id"nrl2_tsi_P1Y")
+      case Some(id) => assertEquals(id, id"nrl2_tsi_P1Y")
       case None => fail("No dataset id found")
     }
 
