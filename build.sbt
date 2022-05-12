@@ -23,9 +23,9 @@ lazy val hapi = (project in file("."))
   
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.typesafe"                   % "config"               % "1.4.1",
-    "org.scalameta"                 %% "munit"                % "0.7.29" % Test,
-    "org.typelevel"                 %% "munit-cats-effect-3"  % "1.0.7" % Test
+    "com.typesafe"     % "config"               % "1.4.1",
+    "org.scalameta"   %% "munit"                % "0.7.29" % Test,
+    "org.typelevel"   %% "munit-cats-effect-3"  % "1.0.7" % Test
   ),
   scalacOptions -= "-Xfatal-warnings"
 )
