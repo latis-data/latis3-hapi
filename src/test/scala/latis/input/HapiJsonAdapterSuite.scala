@@ -4,7 +4,7 @@ import java.net.URI
 
 import munit.CatsEffectSuite
 
-import latis.data.{DomainData, _}
+import latis.data._
 import latis.dataset.AdaptedDataset
 import latis.dsl.ModelParser
 import latis.metadata.Metadata
