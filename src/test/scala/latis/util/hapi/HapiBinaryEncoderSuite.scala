@@ -1,7 +1,6 @@
 package latis.util.hapi
 
 import munit.CatsEffectSuite
-import org.scalatest.EitherValues._
 import scodec.bits._
 import scodec.codecs.implicits._
 import scodec.{Encoder => SEncoder}
@@ -58,7 +57,7 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
 
   test("encode strings as null-padded ASCII with the HAPI data codec") {
     val d = "foo": StringValue
-    val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).value
+    val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).getOrElse(fail("Scalar not generated"))
     val expected = BitVector(hex"666f6f0000")
     DataCodec.hapiCodec(s).encode(d).map { enc =>
       assertEquals(enc, expected)
@@ -85,7 +84,7 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
 
   test("decode strings from null-padded ASCII with the HAPI data codec") {
     val d = "foo": StringValue
-    val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).value
+    val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).getOrElse(fail("Scalar not generated"))
     val encoded = BitVector(hex"666f6f0000")
     DataCodec.hapiCodec(s).decode(encoded).map { dec =>
       assertEquals(dec.value, d)

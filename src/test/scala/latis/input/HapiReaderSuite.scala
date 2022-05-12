@@ -3,7 +3,6 @@ package latis.input
 import java.net.URI
 
 import munit.CatsEffectSuite
-import org.scalatest.matchers.should.Matchers._
 
 import latis.data._
 import latis.model._
@@ -125,10 +124,10 @@ class HapiReaderSuite extends CatsEffectSuite {
       case Some(model) =>
         model match {
           case Function(d: Time, Tuple(Tuple(x0: Scalar, x1: Scalar), y: Scalar)) =>
-            d.id should be (id"time")
-            x0.id should be (id"x._0")
-            x1.id should be (id"x._1")
-            y.id should be (id"y")
+            assertEquals(d.id, id"time")
+            assertEquals(x0.id, id"x._0")
+            assertEquals(x1.id, id"x._1")
+            assertEquals(y.id, id"y")
           case _ => fail(s"Unexpected model: $model")
         }
       case None => fail("Failed to construct model.")
@@ -147,9 +146,9 @@ class HapiReaderSuite extends CatsEffectSuite {
       case Some(model) =>
         model match {
           case Function(d: Time, Function(w: Scalar, x: Scalar)) =>
-            d.id should be (id"time")
-            w.id should be (id"w")
-            x.id should be (id"x")
+            assertEquals(d.id, id"time")
+            assertEquals(w.id, id"w")
+            assertEquals(x.id, id"x")
           case _ => fail(s"Unexpected model: $model")
         }
       case None => fail("Failed to construct model.")
@@ -174,11 +173,11 @@ class HapiReaderSuite extends CatsEffectSuite {
       case Some(model) =>
         model match {
           case Function(d: Time, Function(w: Scalar, Tuple(x: Scalar, y: Scalar, z: Scalar))) =>
-            d.id should be (id"time")
-            w.id should be (id"w")
-            x.id should be (id"x")
-            y.id should be (id"y")
-            z.id should be (id"z")
+            assertEquals(d.id, id"time")
+            assertEquals(w.id, id"w")
+            assertEquals(x.id, id"x")
+            assertEquals(y.id, id"y")
+            assertEquals(z.id, id"z")
           case _ => fail(s"Unexpected model: $model")
         }
       case None => fail("Failed to construct model.")

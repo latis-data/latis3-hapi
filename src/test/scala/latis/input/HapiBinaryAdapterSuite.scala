@@ -3,7 +3,6 @@ package latis.input
 import java.net.URI
 
 import munit.CatsEffectSuite
-import org.scalatest.EitherValues._
 
 import latis.data._
 import latis.metadata.Metadata
@@ -19,12 +18,12 @@ class HapiBinaryAdapterSuite extends CatsEffectSuite {
   private lazy val reader = new AdaptedDatasetReader {
 
     def model: DataType = Function.from(
-      Time.fromMetadata(Metadata("id" -> "Time", "type" -> "string", "size" -> "24", "units"->"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).value,
+      Time.fromMetadata(Metadata("id" -> "Time", "type" -> "string", "size" -> "24", "units"->"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).getOrElse(fail("Time not generated")),
       Tuple.fromElements(
         Scalar(id"Magnitude", DoubleValueType),
         Scalar(id"dBrms", DoubleValueType)
-      ).value
-    ).value
+      ).getOrElse(fail("Tuple not generated"))
+    ).getOrElse(fail("Model not generated"))
 
     def metadata: Metadata = Metadata(id"hapi_binary")
 

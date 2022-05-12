@@ -3,7 +3,6 @@ package latis.input
 import java.net.URI
 
 import munit.CatsEffectSuite
-import org.scalatest.EitherValues._
 
 import latis.data._
 import latis.dataset.AdaptedDataset
@@ -57,17 +56,17 @@ class HapiCsvAdapterSuite extends CatsEffectSuite {
   test("construct the paramaters list with a single parameter for the vector") {
     // time -> (A, (V._1, V._2, V._3), B)
     val model = Function.from(
-      Time.fromMetadata(Metadata("id" -> "time", "type" -> "string", "units" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).value,
+      Time.fromMetadata(Metadata("id" -> "time", "type" -> "string", "units" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).getOrElse(fail("Time not generated")),
       Tuple.fromElements(
         Scalar(id"A", DoubleValueType),
         Tuple.fromElements(id"V",
           Scalar(id"V._1", DoubleValueType),
           Scalar(id"V._2", DoubleValueType),
           Scalar(id"V._3", DoubleValueType)
-        ).value,
+        ).getOrElse(fail("Tuple not generated")),
         Scalar(id"B", DoubleValueType)
-      ).value
-    ).value
+      ).getOrElse(fail("Tuple not generated"))
+    ).getOrElse(fail("Model not generated"))
     
     assertEquals(HapiAdapter.buildParameterList(model), List("A", "V", "B"))
   }
