@@ -12,7 +12,6 @@ class InfoDecoderSuite extends JsonDecoderSuite {
             assertEquals(startDate, "1998-02-04T00:00:31Z")
             assertEquals(stopDate, "2019-05-07T23:59:28Z")
             assertEquals(params.size, 2)
-          case _ => fail("Decoded to wrong info type")
         }
       }
     }
