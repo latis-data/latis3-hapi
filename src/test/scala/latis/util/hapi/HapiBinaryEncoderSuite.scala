@@ -37,7 +37,7 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
     }
   }
 
-  test("encode ints as 32-bit little-endian integers with the HAPI data codec") {
+  test("encode ints as 32-bit little-endian integers") {
     val d = (3: Int): IntValue
     val s = Scalar(id"a", IntValueType)
     val expected = BitVector(hex"03000000")
@@ -46,7 +46,7 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
     }
   }
 
-  test("encode doubles as 64-bit little-endian doubles with the HAPI data codec") {
+  test("encode doubles as 64-bit little-endian doubles") {
     val d = (6.6: Double): DoubleValue
     val s = Scalar(id"a", DoubleValueType)
     val expected = BitVector(hex"6666666666661a40")
@@ -55,7 +55,7 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
     }
   }
 
-  test("encode strings as null-padded ASCII with the HAPI data codec") {
+  test("encode strings as null-padded ASCII") {
     val d = "foo": StringValue
     val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).getOrElse(fail("Scalar not generated"))
     val expected = BitVector(hex"666f6f0000")
@@ -64,7 +64,7 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
     }
   }
 
-  test("decode ints from 32-bit little-endian integers with the HAPI data codec") {
+  test("decode ints from 32-bit little-endian integers") {
     val d = (3: Int): IntValue
     val s = Scalar(id"a", IntValueType)
     val encoded = BitVector(hex"03000000")
@@ -73,7 +73,7 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
     }
   }
 
-  test("decode doubles from 64-bit little-endian doubles with the HAPI data codec") {
+  test("decode doubles from 64-bit little-endian doubles") {
     val d = (6.6: Double): DoubleValue
     val s = Scalar(id"a", DoubleValueType)
     val encoded = BitVector(hex"6666666666661a40")
@@ -82,7 +82,7 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
     }
   }
 
-  test("decode strings from null-padded ASCII with the HAPI data codec") {
+  test("decode strings from null-padded ASCII") {
     val d = "foo": StringValue
     val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).getOrElse(fail("Scalar not generated"))
     val encoded = BitVector(hex"666f6f0000")
