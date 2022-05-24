@@ -9,15 +9,15 @@ import latis.dataset.AdaptedDataset
 import latis.dsl.ModelParser
 import latis.metadata.Metadata
 import latis.ops.Selection
-import latis.util.Identifier.IdentifierStringContext
+import latis.util.Identifier._
 import latis.util.dap2.parser.ast._
 
 class HapiJsonAdapterSuite extends CatsEffectSuite {
-  
+
   private lazy val dataset = {
     val model = ModelParser.unsafeParse("time: string -> (Magnitude: double, dBrms: double)")
     //  Function(
-    //  Scalar(Metadata("id" -> "Time", "type" -> "string")),
+    //  Scalar(Metadata("id" -> "time", "type" -> "string")),
     //  Tuple(
     //    Scalar(Metadata("id" -> "Magnitude", "type" -> "double")),
     //    Scalar(Metadata("id" -> "dBrms", "type" -> "double"))
@@ -36,8 +36,7 @@ class HapiJsonAdapterSuite extends CatsEffectSuite {
     new AdaptedDataset(Metadata(id"AC_H0_MFI"), model, adapter, baseUri)
   }
 
-  
-  test("read the correct values of a HAPI json dataset with time selection") {
+  test("read the first sample of a HAPI json dataset with time selection") {
 
     val ds = dataset
       .withOperation(Selection(id"time", Gt, "2019-01-01T00:00:01"))
@@ -51,5 +50,4 @@ class HapiJsonAdapterSuite extends CatsEffectSuite {
       case _ => fail("Sample did not contain the expected data")
     }
   }
-  
 }
