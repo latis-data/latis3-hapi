@@ -52,7 +52,7 @@ abstract class JsonDecoderSuite extends CatsEffectSuite {
    */
   def doesNotDecodeAs[A: Decoder](json: Json)(msg: => String): Any =
     Decoder[A].decodeJson(json) match {
-      case Left(_) => assert(cond = true)
+      case Left(_) => assert(true)
       case _ => fail(msg)
     }
 }
