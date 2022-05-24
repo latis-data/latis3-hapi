@@ -43,13 +43,11 @@ class HapiCsvAdapterSuite extends CatsEffectSuite {
       .withOperation(Selection(id"time", Lt, "2011-01-01"))
 
     val samples = ds.samples.compile.toList
-    samples.map { s =>
-      s.head match {
-        case Sample(DomainData(Text(time)), RangeData(Real(tsi))) =>
-          assertEquals(time, "2010-07-01T00:00:00.000Z")
-          assertEquals(tsi, 1360.785400390625)
-        case _ => fail("Sample did not contain the expected data")
-      }
+    samples.map {
+      case Sample(DomainData(Text(time)), RangeData(Real(tsi))) :: _ =>
+        assertEquals(time, "2010-07-01T00:00:00.000Z")
+        assertEquals(tsi, 1360.785400390625)
+      case _ => fail("Sample did not contain the expected data")
     }
   }
   
@@ -76,8 +74,7 @@ class HapiCsvAdapterSuite extends CatsEffectSuite {
     FdmlUtils.validateFdml(fdmlFile) match {
       case Right(_) => //pass
       case Left(e) =>
-        println(e.getMessage)
-        fail("Failed with a Latis Exception: " + e.getMessage)
+        fail("Failed with a LatisException: " + e.getMessage)
     }
   }
 
