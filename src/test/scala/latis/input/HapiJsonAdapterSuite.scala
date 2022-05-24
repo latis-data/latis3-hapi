@@ -43,14 +43,12 @@ class HapiJsonAdapterSuite extends CatsEffectSuite {
       .withOperation(Selection(id"time", Gt, "2019-01-01T00:00:01"))
       .withOperation(Selection(id"time", Lt, "2019-01-01T00:00:15"))
 
-    ds.samples.compile.toList.map { s =>
-      s.head match {
-        case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(db))) =>
-          assertEquals(time, "2019-01-01T00:00:14.000Z")
-          assertEquals(mag, 4.566)
-          assertEquals(db, 0.293)
-        case _ => fail("Sample did not contain the expected data")
-      }
+    ds.samples.compile.toList.map {
+      case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(db))) :: _ =>
+        assertEquals(time, "2019-01-01T00:00:14.000Z")
+        assertEquals(mag, 4.566)
+        assertEquals(db, 0.293)
+      case _ => fail("Sample did not contain the expected data")
     }
   }
   
