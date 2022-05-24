@@ -8,7 +8,7 @@ import latis.data._
 import latis.model._
 import latis.ops.Selection
 import latis.time.Time
-import latis.util.Identifier.IdentifierStringContext
+import latis.util.Identifier._
 import latis.util.dap2.parser.ast._
 import latis.util.hapi._
 
@@ -37,14 +37,12 @@ class HapiReaderSuite extends CatsEffectSuite {
       case _ => fail("Model format match failed")
     }
 
-    ds.samples.compile.toList.map { s =>
-      s.head match {
-        case Sample(DomainData(Text(time)), RangeData(Real(tsi), Real(unc))) =>
-          assertEquals(time, "2010-07-01T00:00:00.000Z")
-          assertEquals(tsi, 1360.785400390625)
-          assertEquals(unc, 0.10427488386631012)
-        case _ => fail("Sample format match failed")
-      }
+    ds.samples.compile.toList.map {
+      case Sample(DomainData(Text(time)), RangeData(Real(tsi), Real(unc))) :: _ =>
+        assertEquals(time, "2010-07-01T00:00:00.000Z")
+        assertEquals(tsi, 1360.785400390625)
+        assertEquals(unc, 0.10427488386631012)
+      case _ => fail("Sample format match failed")
     }
   }
 
@@ -55,13 +53,10 @@ class HapiReaderSuite extends CatsEffectSuite {
     )
 
     reader.toModel(parameters) match {
-      case Some(model) =>
-        model match {
-          case Function(d: Time, r: Scalar) =>
-            assertEquals(d.id, id"time")
-            assertEquals(r.id, id"x")
-          case _ => fail(s"Unexpected model: $model")
-        }
+      case Some(Function(d: Time, r: Scalar)) =>
+        assertEquals(d.id, id"time")
+        assertEquals(r.id, id"x")
+      case Some(model) => fail(s"Unexpected model: $model")
       case None => fail("Failed to construct model.")
     }
   }
@@ -73,15 +68,12 @@ class HapiReaderSuite extends CatsEffectSuite {
     )
 
     reader.toModel(parameters) match {
-      case Some(model) =>
-        model match {
-          case Function(d: Time, Tuple(x0: Scalar, x1: Scalar, x2: Scalar)) =>
-            assertEquals(d.id, id"time")
-            assertEquals(x0.id, id"x._0")
-            assertEquals(x1.id, id"x._1")
-            assertEquals(x2.id, id"x._2")
-          case _ => fail(s"Unexpected model: $model")
-        }
+      case Some(Function(d: Time, Tuple(x0: Scalar, x1: Scalar, x2: Scalar))) =>
+        assertEquals(d.id, id"time")
+        assertEquals(x0.id, id"x._0")
+        assertEquals(x1.id, id"x._1")
+        assertEquals(x2.id, id"x._2")
+      case Some(model) => fail(s"Unexpected model: $model")
       case None => fail("Failed to construct model.")
     }
 
@@ -97,18 +89,15 @@ class HapiReaderSuite extends CatsEffectSuite {
     )
 
     reader.toModel(parameters) match {
-      case Some(model) =>
-        model match {
-          case Function(d: Time, Tuple(w: Scalar, Tuple(x0: Scalar, x1: Scalar), Tuple(y0: Scalar, y1: Scalar), z: Scalar)) =>
-            assertEquals(d.id, id"time")
-            assertEquals(w.id, id"w")
-            assertEquals(x0.id, id"x._0")
-            assertEquals(x1.id, id"x._1")
-            assertEquals(y0.id, id"y._0")
-            assertEquals(y1.id, id"y._1")
-            assertEquals(z.id, id"z")
-          case _ => fail(s"Unexpected model: $model")
-        }
+      case Some(Function(d: Time, Tuple(w: Scalar, Tuple(x0: Scalar, x1: Scalar), Tuple(y0: Scalar, y1: Scalar), z: Scalar))) =>
+        assertEquals(d.id, id"time")
+        assertEquals(w.id, id"w")
+        assertEquals(x0.id, id"x._0")
+        assertEquals(x1.id, id"x._1")
+        assertEquals(y0.id, id"y._0")
+        assertEquals(y1.id, id"y._1")
+        assertEquals(z.id, id"z")
+      case Some(model) => fail(s"Unexpected model: $model")
       case None => fail("Failed to construct model.")
     }
   }
@@ -121,15 +110,12 @@ class HapiReaderSuite extends CatsEffectSuite {
     )
 
     reader.toModel(parameters) match {
-      case Some(model) =>
-        model match {
-          case Function(d: Time, Tuple(Tuple(x0: Scalar, x1: Scalar), y: Scalar)) =>
-            assertEquals(d.id, id"time")
-            assertEquals(x0.id, id"x._0")
-            assertEquals(x1.id, id"x._1")
-            assertEquals(y.id, id"y")
-          case _ => fail(s"Unexpected model: $model")
-        }
+      case Some(Function(d: Time, Tuple(Tuple(x0: Scalar, x1: Scalar), y: Scalar))) =>
+        assertEquals(d.id, id"time")
+        assertEquals(x0.id, id"x._0")
+        assertEquals(x1.id, id"x._1")
+        assertEquals(y.id, id"y")
+      case Some(model) => fail(s"Unexpected model: $model")
       case None => fail("Failed to construct model.")
     }
   }
@@ -143,14 +129,11 @@ class HapiReaderSuite extends CatsEffectSuite {
     )
 
     reader.toModel(parameters) match {
-      case Some(model) =>
-        model match {
-          case Function(d: Time, Function(w: Scalar, x: Scalar)) =>
-            assertEquals(d.id, id"time")
-            assertEquals(w.id, id"w")
-            assertEquals(x.id, id"x")
-          case _ => fail(s"Unexpected model: $model")
-        }
+      case Some(Function(d: Time, Function(w: Scalar, x: Scalar))) =>
+        assertEquals(d.id, id"time")
+        assertEquals(w.id, id"w")
+        assertEquals(x.id, id"x")
+      case Some(model) => fail(s"Unexpected model: $model")
       case None => fail("Failed to construct model.")
     }
   }
@@ -170,16 +153,13 @@ class HapiReaderSuite extends CatsEffectSuite {
     )
 
     reader.toModel(parameters) match {
-      case Some(model) =>
-        model match {
-          case Function(d: Time, Function(w: Scalar, Tuple(x: Scalar, y: Scalar, z: Scalar))) =>
-            assertEquals(d.id, id"time")
-            assertEquals(w.id, id"w")
-            assertEquals(x.id, id"x")
-            assertEquals(y.id, id"y")
-            assertEquals(z.id, id"z")
-          case _ => fail(s"Unexpected model: $model")
-        }
+      case Some(Function(d: Time, Function(w: Scalar, Tuple(x: Scalar, y: Scalar, z: Scalar)))) =>
+        assertEquals(d.id, id"time")
+        assertEquals(w.id, id"w")
+        assertEquals(x.id, id"x")
+        assertEquals(y.id, id"y")
+        assertEquals(z.id, id"z")
+      case Some(model) => fail(s"Unexpected model: $model")
       case None => fail("Failed to construct model.")
     }
   }
