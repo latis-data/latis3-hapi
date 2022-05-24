@@ -18,7 +18,14 @@ class HapiBinaryAdapterSuite extends CatsEffectSuite {
   private lazy val reader = new AdaptedDatasetReader {
 
     def model: DataType = Function.from(
-      Time.fromMetadata(Metadata("id" -> "Time", "type" -> "string", "size" -> "24", "units"->"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).getOrElse(fail("Time not generated")),
+      Time.fromMetadata(
+        Metadata(
+          "id" -> "Time",
+          "type" -> "string",
+          "size" -> "24",
+          "units" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        )
+      ).getOrElse(fail("Time not generated")),
       Tuple.fromElements(
         Scalar(id"Magnitude", DoubleValueType),
         Scalar(id"dBrms", DoubleValueType)
@@ -27,7 +34,10 @@ class HapiBinaryAdapterSuite extends CatsEffectSuite {
 
     def metadata: Metadata = Metadata(id"hapi_binary")
 
-    def adapter: Adapter = HapiBinaryAdapter(model, AdapterConfig(("class","HAPI"), ("id","hapi_binary_data"))).parsingAdapter
+    def adapter: Adapter = HapiBinaryAdapter(
+      model,
+      AdapterConfig(("class","HAPI"), ("id","hapi_binary_data"))
+    ).parsingAdapter
   }
 
   private lazy val ds = reader.read(uri)
