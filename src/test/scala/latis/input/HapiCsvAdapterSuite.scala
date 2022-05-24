@@ -19,10 +19,6 @@ class HapiCsvAdapterSuite extends CatsEffectSuite {
 
   private lazy val dataset = {
     val model = ModelParser.unsafeParse("time: string -> irradiance: double")
-    //  Function.from(
-    //  Scalar(id"time", StringValueType),
-    //  Scalar(id"irradiance", DoubleValueType)
-    //).value
 
     val adapter = new HapiCsvAdapter(
       model,
@@ -37,7 +33,7 @@ class HapiCsvAdapterSuite extends CatsEffectSuite {
   }
 
 
-  test("read the correct values of a HAPI csv dataset with time selection") {
+  test("read the first sample of a HAPI csv dataset with time selection") {
     val ds = dataset
       .withOperation(Selection(id"time", Gt, "2010-01-01"))
       .withOperation(Selection(id"time", Lt, "2011-01-01"))
@@ -50,11 +46,17 @@ class HapiCsvAdapterSuite extends CatsEffectSuite {
       case _ => fail("Sample did not contain the expected data")
     }
   }
-  
+
   test("construct the paramaters list with a single parameter for the vector") {
     // time -> (A, (V._1, V._2, V._3), B)
     val model = Function.from(
-      Time.fromMetadata(Metadata("id" -> "time", "type" -> "string", "units" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).getOrElse(fail("Time not generated")),
+      Time.fromMetadata(
+        Metadata(
+          "id" -> "time",
+          "type" -> "string",
+          "units" -> "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        )
+      ).getOrElse(fail("Time not generated")),
       Tuple.fromElements(
         Scalar(id"A", DoubleValueType),
         Tuple.fromElements(id"V",
@@ -65,7 +67,7 @@ class HapiCsvAdapterSuite extends CatsEffectSuite {
         Scalar(id"B", DoubleValueType)
       ).getOrElse(fail("Tuple not generated"))
     ).getOrElse(fail("Model not generated"))
-    
+
     assertEquals(HapiAdapter.buildParameterList(model), List("A", "V", "B"))
   }
 
