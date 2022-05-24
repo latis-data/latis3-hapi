@@ -63,7 +63,13 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
 
   test("encode strings as null-padded ASCII") {
     val d = StringValue("foo")
-    val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).getOrElse(fail("Scalar not generated"))
+    val s = Scalar.fromMetadata(
+      Metadata(
+        "id" -> "a",
+        "type" -> "string",
+        "size" -> "5"
+      )
+    ).getOrElse(fail("Scalar not generated"))
 
     assertEquals(
       DataCodec.hapiCodec(s).encode(d),
@@ -92,8 +98,14 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
   }
 
   test("decode strings from null-padded ASCII") {
-    val d = StringValue("foo") //StringValue("foo")
-    val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).getOrElse(fail("Scalar not generated"))
+    val d = StringValue("foo")
+    val s = Scalar.fromMetadata(
+      Metadata(
+        "id" -> "a",
+        "type" -> "string",
+        "size" -> "5"
+      )
+    ).getOrElse(fail("Scalar not generated"))
 
     assertEquals(
       DataCodec.hapiCodec(s).decode(hex"666f6f0000".bits),
