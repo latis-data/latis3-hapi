@@ -32,17 +32,14 @@ class HapiBinaryAdapterSuite extends CatsEffectSuite {
 
   private lazy val ds = reader.read(uri)
 
-  test("read the correct values of a HAPI binary dataset") {
+  test("read the first sample of a HAPI binary dataset") {
     val samples = ds.samples.compile.toList
-    samples.map { s =>
-      s.head match {
-        case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(dbrms))) =>
-          assertEquals(time, "2019-01-01T00:00:00.000Z")
-          assertEquals(mag, -1.0E31)
-          assertEquals(dbrms, -1.0E31)
-        case _ => fail("Sample did not contain the expected data")
-      }
+    samples.map {
+      case Sample(DomainData(Text(time)), RangeData(Real(mag), Real(dbrms))) :: _ =>
+        assertEquals(time, "2019-01-01T00:00:00.000Z")
+        assertEquals(mag, -1.0E31)
+        assertEquals(dbrms, -1.0E31)
+      case _ => fail("Sample did not contain the expected data")
     }
   }
-
 }
