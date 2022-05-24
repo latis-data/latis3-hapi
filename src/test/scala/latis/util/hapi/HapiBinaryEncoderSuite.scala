@@ -1,8 +1,12 @@
 package latis.util.hapi
 
+import cats.syntax.all._
 import munit.CatsEffectSuite
+import scodec.Attempt
+import scodec.DecodeResult
 import scodec.bits._
 import scodec.codecs.implicits._
+import scodec.interop.cats._
 import scodec.{Encoder => SEncoder}
 
 import latis.data.Data._
@@ -11,7 +15,7 @@ import latis.dsl.DatasetGenerator
 import latis.metadata.Metadata
 import latis.model._
 import latis.output.BinaryEncoder
-import latis.util.Identifier.IdentifierStringContext
+import latis.util.Identifier._
 
 class HapiBinaryEncoderSuite extends CatsEffectSuite {
 
@@ -20,74 +24,80 @@ class HapiBinaryEncoderSuite extends CatsEffectSuite {
 
   test("encode a dataset to binary") {
     val ds: Dataset = DatasetGenerator("x -> (a: int, b: double)")
-    val encodedList = enc.encode(ds).compile.toList
-    val bitVec =
-      SEncoder.encode(0).require.reverseByteOrder ++
-        SEncoder.encode(0).require.reverseByteOrder ++
-        SEncoder.encode(0.0).require.reverseByteOrder ++
-        SEncoder.encode(1).require.reverseByteOrder ++
-        SEncoder.encode(1).require.reverseByteOrder ++
-        SEncoder.encode(1.0).require.reverseByteOrder ++
-        SEncoder.encode(2).require.reverseByteOrder ++
-        SEncoder.encode(2).require.reverseByteOrder ++
-        SEncoder.encode(2.0).require.reverseByteOrder
-    val expected = bitVec.toByteArray.toList
-    encodedList.map { lst =>
-      assertEquals(lst, expected)
-    }
+    val encoded = enc.encode(ds).compile.to(ByteVector).map(_.bits)
+
+    val expected = List(
+      SEncoder.encode(0),
+      SEncoder.encode(0),
+      SEncoder.encode(0.0),
+      SEncoder.encode(1),
+      SEncoder.encode(1),
+      SEncoder.encode(1.0),
+      SEncoder.encode(2),
+      SEncoder.encode(2),
+      SEncoder.encode(2.0),
+    ).foldMap(_.require.reverseByteOrder)
+
+    encoded.assertEquals(expected)
   }
 
   test("encode ints as 32-bit little-endian integers") {
-    val d = (3: Int): IntValue
+    val d = IntValue(3)
     val s = Scalar(id"a", IntValueType)
-    val expected = BitVector(hex"03000000")
-    DataCodec.hapiCodec(s).encode(d).map { enc =>
-      assertEquals(enc, expected)
-    }
+
+    assertEquals(
+      DataCodec.hapiCodec(s).encode(d),
+      Attempt.successful(hex"03000000".bits)
+    )
   }
 
   test("encode doubles as 64-bit little-endian doubles") {
-    val d = (6.6: Double): DoubleValue
+    val d = DoubleValue(6.6)
     val s = Scalar(id"a", DoubleValueType)
-    val expected = BitVector(hex"6666666666661a40")
-    DataCodec.hapiCodec(s).encode(d).map { enc =>
-      assertEquals(enc, expected)
-    }
+
+    assertEquals(
+      DataCodec.hapiCodec(s).encode(d),
+      Attempt.successful(hex"6666666666661a40".bits)
+    )
   }
 
   test("encode strings as null-padded ASCII") {
-    val d = "foo": StringValue
+    val d = StringValue("foo")
     val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).getOrElse(fail("Scalar not generated"))
-    val expected = BitVector(hex"666f6f0000")
-    DataCodec.hapiCodec(s).encode(d).map { enc =>
-      assertEquals(enc, expected)
-    }
+
+    assertEquals(
+      DataCodec.hapiCodec(s).encode(d),
+      Attempt.successful(hex"666f6f0000".bits)
+    )
   }
 
   test("decode ints from 32-bit little-endian integers") {
-    val d = (3: Int): IntValue
+    val d = IntValue(3)
     val s = Scalar(id"a", IntValueType)
-    val encoded = BitVector(hex"03000000")
-    DataCodec.hapiCodec(s).decode(encoded).map { dec =>
-      assertEquals(dec.value, d)
-    }
+
+    assertEquals(
+      DataCodec.hapiCodec(s).decode(hex"03000000".bits),
+      Attempt.successful(DecodeResult(d, BitVector.empty))
+    )
   }
 
   test("decode doubles from 64-bit little-endian doubles") {
-    val d = (6.6: Double): DoubleValue
+    val d = DoubleValue(6.6)
     val s = Scalar(id"a", DoubleValueType)
-    val encoded = BitVector(hex"6666666666661a40")
-    DataCodec.hapiCodec(s).decode(encoded).map { dec =>
-      assertEquals(dec.value, d)
-    }
+
+    assertEquals(
+      DataCodec.hapiCodec(s).decode(hex"6666666666661a40".bits),
+      Attempt.successful(DecodeResult(d, BitVector.empty))
+    )
   }
 
   test("decode strings from null-padded ASCII") {
-    val d = "foo": StringValue
+    val d = StringValue("foo") //StringValue("foo")
     val s = Scalar.fromMetadata(Metadata("id" -> "a", "type" -> "string", "size" -> "5")).getOrElse(fail("Scalar not generated"))
-    val encoded = BitVector(hex"666f6f0000")
-    DataCodec.hapiCodec(s).decode(encoded).map { dec =>
-      assertEquals(dec.value, d)
-    }
+
+    assertEquals(
+      DataCodec.hapiCodec(s).decode(hex"666f6f0000".bits),
+      Attempt.successful(DecodeResult(d, BitVector.empty))
+    )
   }
 }
