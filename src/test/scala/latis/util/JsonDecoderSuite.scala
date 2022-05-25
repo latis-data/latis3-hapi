@@ -2,15 +2,11 @@ package latis.util
 
 import scala.io.Source
 
-import io.circe.Decoder
-import io.circe.Json
-import io.circe.parser
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.Inside
+import io.circe._
+import munit.CatsEffectSuite
 
 /** A base class for testing JSON decoders. */
-abstract class JsonDecoderSpec extends AnyFlatSpec with Inside with Matchers {
+abstract class JsonDecoderSuite extends CatsEffectSuite {
 
   /**
    * Parses JSON from a file on the classpath.
@@ -24,12 +20,12 @@ abstract class JsonDecoderSpec extends AnyFlatSpec with Inside with Matchers {
     try {
       parser.parse(Source.fromResource(resource).mkString) match {
         case Right(json) => f(json)
-        case Left(error) => cancel(error.getMessage)
+        case Left(error) => fail(error.getMessage)
       }
     } catch {
       case _: NullPointerException =>
         // Not finding a resource manifests as a null pointer.
-        cancel(s"Unable to find resource: $resource")
+        fail(s"Unable to find resource: $resource")
     }
 
   /**
@@ -56,7 +52,7 @@ abstract class JsonDecoderSpec extends AnyFlatSpec with Inside with Matchers {
    */
   def doesNotDecodeAs[A: Decoder](json: Json)(msg: => String): Any =
     Decoder[A].decodeJson(json) match {
-      case Left(_) => succeed
+      case Left(_) => assert(true)
       case _ => fail(msg)
     }
 }
