@@ -1,9 +1,9 @@
 ThisBuild / organization := "io.latis-data"
-ThisBuild / scalaVersion := "2.13.6"
+ThisBuild / scalaVersion := "2.13.8"
 
-val latisVersion  = "a626466"
-val circeVersion  = "0.14.1"
-val http4sVersion = "0.23.1"
+val latisVersion  = "fd8e35d"
+val circeVersion  = "0.14.2"
+val http4sVersion = "0.23.14"
 
 lazy val hapi = (project in file("."))
   .settings(commonSettings)
@@ -11,7 +11,7 @@ lazy val hapi = (project in file("."))
     name := "latis3-hapi",
     libraryDependencies ++= Seq(
       "com.github.latis-data.latis3" %% "latis3-core"         % latisVersion,
-      "org.http4s"                   %% "http4s-blaze-client" % http4sVersion,
+      "org.http4s"                   %% "http4s-ember-client" % http4sVersion,
       "org.http4s"                   %% "http4s-circe"        % http4sVersion,
       "io.circe"                     %% "circe-core"          % circeVersion,
       "io.circe"                     %% "circe-parser"        % circeVersion
