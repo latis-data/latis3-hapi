@@ -2,6 +2,7 @@ package latis.input
 
 import java.net.URI
 
+import cats.syntax.all._
 import io.circe._
 import io.circe.parser._
 
@@ -147,10 +148,9 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
       json <- parse(s)
       info <- Decoder[Info].decodeJson(json)
     } yield info
-    either.getOrElse {
-      val msg = s"Failed to get info response from $infoUri"
-      throw LatisException(msg)
-    }
+    either.leftMap { e =>
+      LatisException(s"Failed to read info response from $infoUri", e)
+    }.fold(throw _, identity)
   }
 
   /** Gets the time coverage from the HAPI info. */
