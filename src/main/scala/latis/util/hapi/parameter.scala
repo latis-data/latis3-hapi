@@ -28,7 +28,7 @@ final case class VectorParameter(
   units: Option[String],
   length: Option[Int],
   fill: Option[String],
-  size: Int
+  size: List[Int]
 ) extends Parameter
 
 /** Represents a parameter with size and bins. */
@@ -38,8 +38,8 @@ final case class ArrayParameter(
   units: Option[String], //TODO: could be array of strings
   length: Option[Int],
   fill: Option[String],
-  size: Int,
-  bin: Bin
+  size: List[Int],
+  bin: List[Bin]
 ) extends Parameter
 
 object Parameter {
@@ -54,25 +54,24 @@ object Parameter {
         c.get[Int]("length").map(Option(_))
       } else Right(None)
       fill   <- c.get[Option[String]]("fill")
-      // We only support a single dimension if size is defined.
       size   <- c.get[Option[List[Int]]]("size").flatMap {
-        case Some(s :: Nil) => Right(Option(s))
-        case None           => Right(None)
-        case _              => Left(DecodingFailure("Size", c.history))
+        case Some(s) => Right(Option(s))
+        case None    => Right(None)
+        case _       => Left(DecodingFailure("Size", c.history))
       }
-      // There will only be bins if size was defined. We only support
-      // a single bin if any are defined.
-      bin   <- size match {
+      // There will only be bins if size was defined.
+      bins  <- size match {
+        //TODO: make sure bins are consistent with size
         case Some(_) => c.get[Option[List[Bin]]]("bins").flatMap {
-          case Some(b :: Nil) => Right(Option(b))
-          case None           => Right(None)
-          case _              => Left(DecodingFailure("Bins", c.history))
+          case Some(b) => Right(Option(b))
+          case None    => Right(None)
+          case _       => Left(DecodingFailure("Bins", c.history))
         }
         case None    => Right(None)
       }
-      param <- bin match {
-        case Some(bin) => size match {
-          case Some(size) => Right(ArrayParameter(name, tyName, units, length, fill, size, bin))
+      param <- bins match {
+        case Some(bins) => size match {
+          case Some(size) => Right(ArrayParameter(name, tyName, units, length, fill, size, bins))
           case None       => Left(DecodingFailure("Parameter", c.history))
         }
         case None => size match {

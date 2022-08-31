@@ -4,5 +4,5 @@
     "units": "km/s",
     "fill": "-1.0E31",
     "description": "Solar Wind Velocity in GSE coord., 3 components",
-    "size": [3]
+    "size": [3,2]
 }
