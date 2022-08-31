@@ -10,7 +10,7 @@ class ParameterDecoderSuite extends JsonDecoderSuite {
         case ScalarParameter(name, tyName, units, length, fill) =>
           assertEquals(name, "Np")
           assertEquals(tyName, "double")
-          assertEquals(units, "#/cc")
+          assertEquals(units, Some("#/cc"))
           assertEquals(length, None)
           assertEquals(fill, Some("-1.0E31"))
         case _ => fail("Decoded to wrong parameter type.")
@@ -24,7 +24,7 @@ class ParameterDecoderSuite extends JsonDecoderSuite {
         case VectorParameter(name, tyName, units, length, fill, size) =>
           assertEquals(name, "V_GSE")
           assertEquals(tyName, "double")
-          assertEquals(units, "km/s")
+          assertEquals(units, Some("km/s"))
           assertEquals(length, None)
           assertEquals(fill, Some("-1.0E31"))
           assertEquals(size, 3)
@@ -39,7 +39,7 @@ class ParameterDecoderSuite extends JsonDecoderSuite {
         case ArrayParameter(name, tyName, units, length, fill, size, Bin(binName, binUnits)) =>
           assertEquals(name, "proton_spectrum_uncerts")
           assertEquals(tyName, "double")
-          assertEquals(units, "particles/(sec ster cm^2 keV)")
+          assertEquals(units, Some("particles/(sec ster cm^2 keV)"))
           assertEquals(length, None)
           assertEquals(fill, Some("-1e31"))
           assertEquals(size, 3)
@@ -53,6 +53,16 @@ class ParameterDecoderSuite extends JsonDecoderSuite {
   test("reject parameters with multiple bins") {
     withJsonResource("data/hapi-parameter-array-multiple-bins.json") {
       doesNotDecodeAs[Parameter](_)("Failed to reject invalid parameter.")
+    }
+  }
+
+  test("accept and decode parameter with null units") {
+    withJsonResource("data/hapi-parameter-null-units.json") {
+      decodedAs[Parameter](_) {
+        case ScalarParameter(_, _, units, _, _) =>
+          assertEquals(units, None)
+        case _ => fail("Decoded to wrong parameter type.")
+      }
     }
   }
 }

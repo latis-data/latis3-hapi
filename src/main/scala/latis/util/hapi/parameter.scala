@@ -16,7 +16,7 @@ sealed trait Parameter
 final case class ScalarParameter(
   name: String,
   typeName: String,
-  units: String,
+  units: Option[String],
   length: Option[Int],
   fill: Option[String]
 ) extends Parameter
@@ -25,7 +25,7 @@ final case class ScalarParameter(
 final case class VectorParameter(
   name: String,
   typeName: String,
-  units: String,
+  units: Option[String],
   length: Option[Int],
   fill: Option[String],
   size: Int
@@ -35,7 +35,7 @@ final case class VectorParameter(
 final case class ArrayParameter(
   name: String,
   typeName: String,
-  units: String,
+  units: Option[String], //TODO: could be array of strings
   length: Option[Int],
   fill: Option[String],
   size: Int,
@@ -48,7 +48,7 @@ object Parameter {
     final def apply(c: HCursor): Decoder.Result[Parameter] = for {
       name   <- c.get[String]("name")
       tyName <- c.get[String]("type")
-      units  <- c.get[String]("units")
+      units  <- c.get[Option[String]]("units")
       // Only time and string parameters have length.
       length <- if (tyName == "string" || tyName == "isotime") {
         c.get[Int]("length").map(Option(_))

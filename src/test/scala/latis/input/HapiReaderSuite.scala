@@ -48,8 +48,8 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("support scalar timeseries datasets") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None),
-      ScalarParameter("x", "string", "units", None, None)
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
+      ScalarParameter("x", "string", Option("units"), None, None)
     )
 
     reader.toModel(parameters) match {
@@ -63,8 +63,8 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("support vector timeseries datasets") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None),
-      VectorParameter("x", "string", "units", None, None, 3)
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
+      VectorParameter("x", "string", Option("units"), None, None, 3)
     )
 
     reader.toModel(parameters) match {
@@ -81,11 +81,11 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("support scalars and vectors in datasets") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None),
-      ScalarParameter("w", "string", "units", None, None),
-      VectorParameter("x", "string", "units", None, None, 2),
-      VectorParameter("y", "string", "units", None, None, 2),
-      ScalarParameter("z", "string", "units", None, None)
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
+      ScalarParameter("w", "string", Option("units"), None, None),
+      VectorParameter("x", "string", Option("units"), None, None, 2),
+      VectorParameter("y", "string", Option("units"), None, None, 2),
+      ScalarParameter("z", "string", Option("units"), None, None)
     )
 
     reader.toModel(parameters) match {
@@ -104,9 +104,9 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("support datasets with a vector as the first non-time parameter") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None),
-      VectorParameter("x", "string", "units", None, None, 2),
-      ScalarParameter("y", "string", "units", None, None)
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
+      VectorParameter("x", "string", Option("units"), None, None, 2),
+      ScalarParameter("y", "string", Option("units"), None, None)
     )
 
     reader.toModel(parameters) match {
@@ -122,8 +122,8 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("support array parameters in datasets") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None),
-      ArrayParameter("x", "string", "units", None, None, 1,
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
+      ArrayParameter("x", "string", Option("units"), None, None, 1,
         Bin("w", "units")
       )
     )
@@ -140,14 +140,14 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("support multiple array parameters in datasets") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None),
-      ArrayParameter("x", "string", "units", None, None, 1,
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
+      ArrayParameter("x", "string", Option("units"), None, None, 1,
         Bin("w", "units")
       ),
-      ArrayParameter("y", "string", "units", None, None, 1,
+      ArrayParameter("y", "string", Option("units"), None, None, 1,
         Bin("w", "units")
       ),
-      ArrayParameter("z", "string", "units", None, None, 1,
+      ArrayParameter("z", "string", Option("units"), None, None, 1,
         Bin("w", "units")
       )
     )
@@ -166,11 +166,11 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("gracefully reject mixing array parameters with different bins") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None),
-      ArrayParameter("x", "string", "units", None, None, 1,
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
+      ArrayParameter("x", "string", Option("units"), None, None, 1,
         Bin("w", "units")
       ),
-      ArrayParameter("y", "string", "units", None, None, 1,
+      ArrayParameter("y", "string", Option("units"), None, None, 1,
         Bin("z", "units")
       )
     )
@@ -180,9 +180,9 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("gracefully reject mixing array and other parameters") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None),
-      ScalarParameter("x", "string", "units", None, None),
-      ArrayParameter("y", "string", "units", None, None, 1,
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
+      ScalarParameter("x", "string", Option("units"), None, None),
+      ArrayParameter("y", "string", Option("units"), None, None, 1,
         Bin("w", "units")
       )
     )
@@ -192,7 +192,7 @@ class HapiReaderSuite extends CatsEffectSuite {
 
   test("gracefully reject responses with only the time parameter") {
     val parameters: List[Parameter] = List(
-      ScalarParameter("time", "isotime", "UTC", Option(24), None)
+      ScalarParameter("time", "isotime", Option("UTC"), Option(24), None)
     )
 
     assertEquals(reader.toModel(parameters), None)
