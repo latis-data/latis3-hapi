@@ -1,9 +1,9 @@
 ThisBuild / organization := "io.latis-data"
 ThisBuild / scalaVersion := "2.13.8"
 
-val latisVersion  = "fd8e35d"
+val latisVersion  = "de6724b"
 val circeVersion  = "0.14.2"
-val http4sVersion = "0.23.14"
+val http4sVersion = "0.23.15"
 
 lazy val hapi = (project in file("."))
   .settings(commonSettings)
@@ -23,7 +23,7 @@ lazy val hapi = (project in file("."))
   
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.typesafe"   % "config"              % "1.4.1",
+    "com.typesafe"   % "config"              % "1.4.2",
     "org.scalameta" %% "munit"               % "0.7.29" % Test,
     "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
   ),
