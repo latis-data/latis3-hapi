@@ -2,8 +2,6 @@ package latis.input
 
 import java.net.URI
 
-import scala.concurrent.ExecutionContext
-
 import cats.effect.IO
 import cats.effect.Resource
 import cats.effect.unsafe.implicits.global
@@ -162,7 +160,7 @@ class HapiReader {
     case ArrayParameter(name, tyName, units, length, fill, _, Bin(bName, bUnits)) =>
       // The domain of the function is the bin as a Scalar.
       val d: DataType = toScalar(
-        ScalarParameter(bName, "double", bUnits, None, None)
+        ScalarParameter(bName, "double", bUnits.some, None, None)
       )
 
       // The range of the function is the array parameter as a Scalar.
@@ -196,13 +194,14 @@ class HapiReader {
   /** Constructs a LaTiS Time value from a HAPI parameter. */
   private def toTime(p: ScalarParameter): Time = p match {
     case ScalarParameter(_, _, _, l @ Some(length), _) =>
-      val md = makeMetadata("time", "string", getTimeFormat(length), l, None)
+      val md = makeMetadata("time", "string", getTimeFormat(length).some, l, None)
       Time.fromMetadata(md).fold(throw _, identity)
     case _ => throw new RuntimeException("Time parameter requires length.")
   }
 
   /** Determines time format from reported time string length. */
   private def getTimeFormat(length: Int): String = length match {
+    //TODO: DSCOVR_H1_FC data have "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'"
     case 24 => "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
     case 22 => "yyyy-ddd'T'HH:mm:ss.SSS'Z'"
     case 20 => "yyyy-MM-dd'T'HH:mm:ss'Z'"
@@ -222,7 +221,7 @@ class HapiReader {
   private def makeMetadata(
     id: String,
     tyName: String,
-    units: String,
+    units: Option[String],
     length: Option[Int],
     fill: Option[String]
   ): Metadata = {
@@ -232,10 +231,11 @@ class HapiReader {
       case t         => t
     }
 
-    val b = Metadata("id" -> id, "type" -> tn, "units" -> units)
+    val b = Metadata("id" -> id, "type" -> tn)
+    val u = units.fold(Metadata())(u => Metadata("units" -> u))
     val l = length.fold(Metadata())(l => Metadata("length" -> l.toString()))
     val f = fill.fold(Metadata())(f => Metadata("fill" -> f))
 
-    b ++ l ++ f
+    b ++ u ++ l ++ f
   }
 }
