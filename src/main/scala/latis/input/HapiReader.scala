@@ -127,11 +127,11 @@ class HapiReader {
     // must share the same domain. (We check this by comparing the
     // name of the next parameter's bin to the name of the domain
     // of the function.)
-    case (Function(d: Scalar, r), p: ArrayParameter) if p.bin.name == d.id.asString =>
+    case (Function(d: Scalar, r), p: ArrayParameter) if p.bin.head.name == d.id.asString =>
       val np = ScalarParameter(p.name, p.typeName, p.units, p.length, p.fill)
       val newRange = addParameterToModel(r, np)
       newRange.flatMap(Function.from(d, _).toOption)
-    // Array parameters can only be placed in functions.
+    // Array parameters can only be placed in functions. Currently limited to 1D.
     case (_, _: ArrayParameter) => None
     // The next parameter for these cases will either be a scalar
     // or a vector, and both are ok to add if we don't already
@@ -155,9 +155,13 @@ class HapiReader {
     case p: ArrayParameter  => toFunction(p)
   }
 
-  /** Constructs a LaTiS Function from a HAPI parameter. */
+  /**
+   * Constructs a LaTiS Function from a HAPI parameter.
+   *
+   * This is currently limited to one-dimensional array parameters.
+   */
   private def toFunction(p: ArrayParameter): Function = p match {
-    case ArrayParameter(name, tyName, units, length, fill, _, Bin(bName, bUnits)) =>
+    case ArrayParameter(name, tyName, units, length, fill, _, Bin(bName, bUnits) :: Nil) =>
       // The domain of the function is the bin as a Scalar.
       val d: DataType = toScalar(
         ScalarParameter(bName, "double", bUnits.some, None, None)
@@ -169,6 +173,7 @@ class HapiReader {
       )
 
       Function.from(d, r).fold(throw _, identity)
+    case _ => throw LatisException("HapiReader only supports 1D array parameters")
   }
 
   /** Constructs a LaTiS Scalar from a HAPI parameter. */
@@ -181,7 +186,9 @@ class HapiReader {
   /** Constructs a LaTiS Tuple from a HAPI parameter. */
   private def toTuple(p: VectorParameter): Tuple = p match {
     case VectorParameter(name, tyName, units, length, fill, size) =>
-      val ds: List[DataType] = List.tabulate(size) { n =>
+      // This will flatten a nD VectorParameter to a 1D Tuple.
+      // TODO: consider nested Tuples or at least better naming
+      val ds: List[DataType] = List.tabulate(size.product) { n =>
         val md = makeMetadata(s"$name._$n", tyName, units, length, fill)
         Scalar.fromMetadata(md).fold(throw _, identity)
       }

@@ -1,19 +1,19 @@
 {
-    "name": "FPDU_plasmagram",
+    "name": "foo",
     "type": "double",
-    "units": "cm!e-2!ns!e-1!nsr!e-1!nkeV!e-1!n",
-    "fill": "-1.0E31",
-    "size": [32,31],
+    "units": "m",
+    "fill": null,
+    "size": [2,3],
     "bins": [
         {
-            "name": "FPDU_Alpha",
-            "units": "degrees",
-            "centers": []
+            "name": "x",
+            "units": "m",
+            "centers": [1,2]
         },
         {
-            "name": "FPDU_Energy",
-            "units": "keV",
-            "centers":[]
+            "name": "y",
+            "units": "m",
+            "centers":[1,2,3]
         }
     ]
 }
