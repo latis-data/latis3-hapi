@@ -1,5 +1,6 @@
 package latis.util.hapi
 
+import cats.data.NonEmptyList
 import io.circe.Decoder
 import io.circe.DecodingFailure
 import io.circe.HCursor
@@ -28,7 +29,7 @@ final case class VectorParameter(
   units: Option[String],
   length: Option[Int],
   fill: Option[String],
-  size: List[Int]
+  size: NonEmptyList[Int]
 ) extends Parameter
 
 /** Represents a parameter with size and bins. */
@@ -38,8 +39,8 @@ final case class ArrayParameter(
   units: Option[String], //TODO: could be array of strings
   length: Option[Int],
   fill: Option[String],
-  size: List[Int],
-  bin: List[Bin]
+  size: NonEmptyList[Int],
+  bin: NonEmptyList[Bin]
 ) extends Parameter
 
 object Parameter {
@@ -54,7 +55,7 @@ object Parameter {
         c.get[Int]("length").map(Option(_))
       } else Right(None)
       fill   <- c.get[Option[String]]("fill")
-      size   <- c.get[Option[List[Int]]]("size").flatMap {
+      size   <- c.get[Option[NonEmptyList[Int]]]("size").flatMap {
         case Some(s) => Right(Option(s))
         case None    => Right(None)
         case _       => Left(DecodingFailure("Size", c.history))
@@ -62,7 +63,7 @@ object Parameter {
       // There will only be bins if size was defined.
       bins  <- size match {
         //TODO: make sure bins are consistent with size
-        case Some(_) => c.get[Option[List[Bin]]]("bins").flatMap {
+        case Some(_) => c.get[Option[NonEmptyList[Bin]]]("bins").flatMap {
           case Some(b) => Right(Option(b))
           case None    => Right(None)
           case _       => Left(DecodingFailure("Bins", c.history))

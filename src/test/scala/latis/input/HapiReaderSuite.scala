@@ -2,6 +2,7 @@ package latis.input
 
 import java.net.URI
 
+import cats.data.NonEmptyList
 import munit.CatsEffectSuite
 
 import latis.data._
@@ -64,7 +65,7 @@ class HapiReaderSuite extends CatsEffectSuite {
   test("support vector timeseries datasets") {
     val parameters: List[Parameter] = List(
       ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
-      VectorParameter("x", "string", Option("units"), None, None, List(3))
+      VectorParameter("x", "string", Option("units"), None, None, NonEmptyList.of(3))
     )
 
     reader.toModel(parameters) match {
@@ -83,8 +84,8 @@ class HapiReaderSuite extends CatsEffectSuite {
     val parameters: List[Parameter] = List(
       ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
       ScalarParameter("w", "string", Option("units"), None, None),
-      VectorParameter("x", "string", Option("units"), None, None, List(2)),
-      VectorParameter("y", "string", Option("units"), None, None, List(2)),
+      VectorParameter("x", "string", Option("units"), None, None, NonEmptyList.of(2)),
+      VectorParameter("y", "string", Option("units"), None, None, NonEmptyList.of(2)),
       ScalarParameter("z", "string", Option("units"), None, None)
     )
 
@@ -105,7 +106,7 @@ class HapiReaderSuite extends CatsEffectSuite {
   test("support datasets with a vector as the first non-time parameter") {
     val parameters: List[Parameter] = List(
       ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
-      VectorParameter("x", "string", Option("units"), None, None, List(2)),
+      VectorParameter("x", "string", Option("units"), None, None, NonEmptyList.of(2)),
       ScalarParameter("y", "string", Option("units"), None, None)
     )
 
@@ -123,8 +124,8 @@ class HapiReaderSuite extends CatsEffectSuite {
   test("support array parameters in datasets") {
     val parameters: List[Parameter] = List(
       ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
-      ArrayParameter("x", "string", Option("units"), None, None, List(1),
-        List(Bin("w", "units"))
+      ArrayParameter("x", "string", Option("units"), None, None, NonEmptyList.of(1),
+        NonEmptyList.of(Bin("w", "units"))
       )
     )
 
@@ -141,14 +142,14 @@ class HapiReaderSuite extends CatsEffectSuite {
   test("support multiple array parameters in datasets") {
     val parameters: List[Parameter] = List(
       ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
-      ArrayParameter("x", "string", Option("units"), None, None, List(1),
-        List(Bin("w", "units"))
+      ArrayParameter("x", "string", Option("units"), None, None, NonEmptyList.of(1),
+        NonEmptyList.of(Bin("w", "units"))
       ),
-      ArrayParameter("y", "string", Option("units"), None, None, List(1),
-        List(Bin("w", "units"))
+      ArrayParameter("y", "string", Option("units"), None, None, NonEmptyList.of(1),
+        NonEmptyList.of(Bin("w", "units"))
       ),
-      ArrayParameter("z", "string", Option("units"), None, None, List(1),
-        List(Bin("w", "units"))
+      ArrayParameter("z", "string", Option("units"), None, None, NonEmptyList.of(1),
+        NonEmptyList.of(Bin("w", "units"))
       )
     )
 
@@ -167,11 +168,11 @@ class HapiReaderSuite extends CatsEffectSuite {
   test("gracefully reject mixing array parameters with different bins") {
     val parameters: List[Parameter] = List(
       ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
-      ArrayParameter("x", "string", Option("units"), None, None, List(1),
-        List(Bin("w", "units"))
+      ArrayParameter("x", "string", Option("units"), None, None, NonEmptyList.of(1),
+        NonEmptyList.of(Bin("w", "units"))
       ),
-      ArrayParameter("y", "string", Option("units"), None, None, List(1),
-        List(Bin("z", "units"))
+      ArrayParameter("y", "string", Option("units"), None, None, NonEmptyList.of(1),
+        NonEmptyList.of(Bin("z", "units"))
       )
     )
 
@@ -182,8 +183,8 @@ class HapiReaderSuite extends CatsEffectSuite {
     val parameters: List[Parameter] = List(
       ScalarParameter("time", "isotime", Option("UTC"), Option(24), None),
       ScalarParameter("x", "string", Option("units"), None, None),
-      ArrayParameter("y", "string", Option("units"), None, None, List(1),
-        List(Bin("w", "units"))
+      ArrayParameter("y", "string", Option("units"), None, None, NonEmptyList.of(1),
+        NonEmptyList.of(Bin("w", "units"))
       )
     )
 
