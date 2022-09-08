@@ -2,6 +2,7 @@ package latis.input
 
 import java.net.URI
 
+import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.effect.Resource
 import cats.effect.unsafe.implicits.global
@@ -161,7 +162,7 @@ class HapiReader {
    * This is currently limited to one-dimensional array parameters.
    */
   private def toFunction(p: ArrayParameter): Function = p match {
-    case ArrayParameter(name, tyName, units, length, fill, _, Bin(bName, bUnits) :: Nil) =>
+    case ArrayParameter(name, tyName, units, length, fill, _, NonEmptyList(Bin(bName, bUnits), Nil)) =>
       // The domain of the function is the bin as a Scalar.
       val d: DataType = toScalar(
         ScalarParameter(bName, "double", bUnits.some, None, None)
@@ -188,7 +189,7 @@ class HapiReader {
     case VectorParameter(name, tyName, units, length, fill, size) =>
       // This will flatten a nD VectorParameter to a 1D Tuple.
       // TODO: consider nested Tuples or at least better naming
-      val ds: List[DataType] = List.tabulate(size.product) { n =>
+      val ds: List[DataType] = List.tabulate(size.toList.product) { n =>
         val md = makeMetadata(s"$name._$n", tyName, units, length, fill)
         Scalar.fromMetadata(md).fold(throw _, identity)
       }

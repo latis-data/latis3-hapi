@@ -1,6 +1,8 @@
 package latis.util
 package hapi
 
+import cats.data.NonEmptyList
+
 /** Tests for decoding HAPI parameters. */
 class ParameterDecoderSuite extends JsonDecoderSuite {
 
@@ -27,7 +29,7 @@ class ParameterDecoderSuite extends JsonDecoderSuite {
           assertEquals(units, Some("km/s"))
           assertEquals(length, None)
           assertEquals(fill, Some("-1.0E31"))
-          assertEquals(size, List(3,2))
+          assertEquals(size, NonEmptyList.of(3,2))
         case _ => fail("Decoded to wrong parameter type.")
       }
     }
@@ -36,13 +38,13 @@ class ParameterDecoderSuite extends JsonDecoderSuite {
   test("accept and decode parameters with a single bin") {
     withJsonResource("data/hapi-parameter-array.json") {
       decodedAs[Parameter](_) {
-        case ArrayParameter(name, tyName, units, length, fill, size, List(Bin(binName, binUnits))) =>
+        case ArrayParameter(name, tyName, units, length, fill, size, NonEmptyList(Bin(binName, binUnits), _)) =>
           assertEquals(name, "proton_spectrum_uncerts")
           assertEquals(tyName, "double")
           assertEquals(units, Some("particles/(sec ster cm^2 keV)"))
           assertEquals(length, None)
           assertEquals(fill, Some("-1e31"))
-          assertEquals(size, List(3))
+          assertEquals(size, NonEmptyList.of(3))
           assertEquals(binName, "energy")
           assertEquals(binUnits, "keV")
         case _ => fail("Decoded to wrong parameter type.")
@@ -54,8 +56,8 @@ class ParameterDecoderSuite extends JsonDecoderSuite {
     withJsonResource("data/hapi-parameter-array-multiple-bins.json") {
       decodedAs[Parameter](_) {
         case ArrayParameter(_, _, _, _, _, size, bins) =>
-          assertEquals(size, List(2,3))
-          assertEquals(bins, List(Bin("x", "m"), Bin("y", "m")))
+          assertEquals(size, NonEmptyList.of(2,3))
+          assertEquals(bins, NonEmptyList.of(Bin("x", "m"), Bin("y", "m")))
         case _ => fail("Decoded to wrong parameter type.")
       }
     }
