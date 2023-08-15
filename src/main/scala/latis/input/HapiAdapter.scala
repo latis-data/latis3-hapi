@@ -153,15 +153,19 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
     }.fold(throw _, identity)
   }
 
-  /** Gets the time coverage from the HAPI info. */
-  //TODO: use the HAPI sampleStartDate and sampleStopDate if available
-  //  See: https://github.com/latis-data/latis3-hapi/issues/9
+  /**
+   * Gets the default time coverage from the HAPI info.
+   *
+   * The end time will be padded an extra second since the max time is
+   * specified to be exclusive and we don't want to risk missing the
+   * last sample.
+   */
   def defaultTimeCoverage(): (Long, Long) = {
     val info = readInfo()
     val either = for {
       start <- TimeFormat.parseIso(info.startDate)
       stop  <- TimeFormat.parseIso(info.stopDate)
-    } yield (start, stop)
+    } yield (start, stop + 1000L) //pad stop time one second
     either.getOrElse {
       val msg = "Failed to get time coverage from HAPI info"
       throw LatisException(msg)
