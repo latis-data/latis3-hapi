@@ -6,20 +6,20 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.effect.Resource
 import cats.effect.unsafe.implicits.global
-import cats.syntax.all._
+import cats.syntax.all.*
 import io.circe.Decoder
 import io.circe.Json
 import org.http4s.Uri
-import org.http4s.circe._
+import org.http4s.circe.*
 import org.http4s.client.Client
 import org.http4s.ember.client.EmberClientBuilder
 
 import latis.dataset.AdaptedDataset
 import latis.dataset.Dataset
 import latis.metadata.Metadata
-import latis.model._
+import latis.model.*
 import latis.time.Time
-import latis.util.hapi._
+import latis.util.hapi.*
 import latis.util.Identifier
 import latis.util.LatisException
 

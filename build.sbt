@@ -1,9 +1,9 @@
 ThisBuild / organization := "io.latis-data"
-ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / scalaVersion := "3.3.1"
 
-val latisVersion  = "ea2ab6c"
-val circeVersion  = "0.14.5"
-val http4sVersion = "0.23.23"
+val latisVersion  = "4abcef6" //TODO: update when latis3's scala-3 branch is merged
+val circeVersion  = "0.14.6"
+val http4sVersion = "0.23.24"
 
 lazy val hapi = (project in file("."))
   .settings(commonSettings)
@@ -23,7 +23,7 @@ lazy val hapi = (project in file("."))
   
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.typesafe"   % "config"              % "1.4.2",
+    "com.typesafe"   % "config"              % "1.4.3",
     "org.scalameta" %% "munit"               % "0.7.29" % Test,
     "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
   ),

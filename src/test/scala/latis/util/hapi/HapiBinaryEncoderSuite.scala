@@ -1,21 +1,21 @@
 package latis.util.hapi
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import munit.CatsEffectSuite
 import scodec.Attempt
+import scodec.Codec.given
 import scodec.DecodeResult
-import scodec.bits._
-import scodec.codecs.implicits._
-import scodec.interop.cats._
-import scodec.{Encoder => SEncoder}
+import scodec.Encoder as SEncoder
+import scodec.bits.*
+import scodec.interop.cats.*
 
-import latis.data.Data._
+import latis.data.Data.*
 import latis.dataset.Dataset
 import latis.dsl.DatasetGenerator
 import latis.metadata.Metadata
-import latis.model._
+import latis.model.*
 import latis.output.BinaryEncoder
-import latis.util.Identifier._
+import latis.util.Identifier.*
 
 class HapiBinaryEncoderSuite extends CatsEffectSuite {
 

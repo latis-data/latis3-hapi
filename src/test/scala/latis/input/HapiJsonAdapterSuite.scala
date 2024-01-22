@@ -4,13 +4,13 @@ import java.net.URI
 
 import munit.CatsEffectSuite
 
-import latis.data._
+import latis.data.*
 import latis.dataset.AdaptedDataset
 import latis.dsl.ModelParser
 import latis.metadata.Metadata
 import latis.ops.Selection
-import latis.util.Identifier._
-import latis.util.dap2.parser.ast._
+import latis.util.Identifier.*
+import latis.util.dap2.parser.ast.*
 
 class HapiJsonAdapterSuite extends CatsEffectSuite {
 

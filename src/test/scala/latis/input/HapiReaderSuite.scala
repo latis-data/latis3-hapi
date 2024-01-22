@@ -5,13 +5,13 @@ import java.net.URI
 import cats.data.NonEmptyList
 import munit.CatsEffectSuite
 
-import latis.data._
-import latis.model._
+import latis.data.*
+import latis.model.*
 import latis.ops.Selection
 import latis.time.Time
-import latis.util.Identifier._
-import latis.util.dap2.parser.ast._
-import latis.util.hapi._
+import latis.util.Identifier.*
+import latis.util.dap2.parser.ast.*
+import latis.util.hapi.*
 
 class HapiReaderSuite extends CatsEffectSuite {
 

@@ -2,7 +2,7 @@ package latis.util
 
 import scala.io.Source
 
-import io.circe._
+import io.circe.*
 import munit.CatsEffectSuite
 
 /** A base class for testing JSON decoders. */
