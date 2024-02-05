@@ -4,12 +4,12 @@ import java.net.URI
 
 import munit.CatsEffectSuite
 
-import latis.data._
+import latis.data.*
 import latis.metadata.Metadata
-import latis.model._
+import latis.model.*
 import latis.time.Time
 import latis.util.FileUtils
-import latis.util.Identifier.IdentifierStringContext
+import latis.util.Identifier.*
 
 class HapiBinaryAdapterSuite extends CatsEffectSuite {
 
