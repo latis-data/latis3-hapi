@@ -43,38 +43,41 @@ final case class ArrayParameter(
   bin: NonEmptyList[Bin]
 ) extends Parameter
 
-given decodeParameter: Decoder[Parameter] = new Decoder[Parameter] {
-  final def apply(c: HCursor): Decoder.Result[Parameter] = for {
-    name   <- c.get[String]("name")
-    tyName <- c.get[String]("type")
-    units  <- c.get[Option[String]]("units")
-    // Only time and string parameters have length.
-    length <- if (tyName == "string" || tyName == "isotime") {
-      c.get[Int]("length").map(Option(_))
-    } else Right(None)
-    fill   <- c.get[Option[String]]("fill")
-    size   <- c.get[Option[NonEmptyList[Int]]]("size").flatMap {
-      case Some(s) => Right(Option(s))
-      case None    => Right(None)
-    }
-    // There will only be bins if size was defined.
-    bins  <- size match {
-      //TODO: make sure bins are consistent with size
-      case Some(_) => c.get[Option[NonEmptyList[Bin]]]("bins").flatMap {
-        case Some(b) => Right(Option(b))
-        case None    => Right(None)
+object Parameter {
+  
+  given decodeParameter: Decoder[Parameter] = new Decoder[Parameter] {
+    final def apply(c: HCursor): Decoder.Result[Parameter] = for {
+      name   <- c.get[String]("name")
+      tyName <- c.get[String]("type")
+      units  <- c.get[Option[String]]("units")
+      // Only time and string parameters have length.
+      length <- if (tyName == "string" || tyName == "isotime") {
+        c.get[Int]("length").map(Option(_))
+      } else Right(None)
+      fill   <- c.get[Option[String]]("fill")
+      size   <- c.get[Option[NonEmptyList[Int]]]("size").flatMap {
+        case Some(s) => Right(Option(s))
+        case None => Right(None)
       }
-      case None    => Right(None)
-    }
-    param <- bins match {
-      case Some(bins) => size match {
-        case Some(size) => Right(ArrayParameter(name, tyName, units, length, fill, size, bins))
-        case None       => Left(DecodingFailure("Parameter", c.history))
+      // There will only be bins if size was defined.
+      bins   <- size match {
+        //TODO: make sure bins are consistent with size
+        case Some(_) => c.get[Option[NonEmptyList[Bin]]]("bins").flatMap {
+          case Some(b) => Right(Option(b))
+          case None => Right(None)
+        }
+        case None => Right(None)
       }
-      case None => size match {
-        case Some(size) => Right(VectorParameter(name, tyName, units, length, fill, size))
-        case None       => Right(ScalarParameter(name, tyName, units, length, fill))
+      param  <- bins match {
+        case Some(bins) => size match {
+          case Some(size) => Right(ArrayParameter(name, tyName, units, length, fill, size, bins))
+          case None => Left(DecodingFailure("Parameter", c.history))
+        }
+        case None => size match {
+          case Some(size) => Right(VectorParameter(name, tyName, units, length, fill, size))
+          case None => Right(ScalarParameter(name, tyName, units, length, fill))
+        }
       }
-    }
-  } yield param
+    } yield param
+  }
 }
