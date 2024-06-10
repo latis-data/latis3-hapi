@@ -1,9 +1,9 @@
 ThisBuild / organization := "io.latis-data"
-ThisBuild / scalaVersion := "3.3.1"
+ThisBuild / scalaVersion := "3.3.3"
 
-val latisVersion  = "4abcef6" //TODO: update when latis3's scala-3 branch is merged
-val circeVersion  = "0.14.6"
-val http4sVersion = "0.23.24"
+val latisVersion  = "792d62ed"
+val circeVersion  = "0.14.7"
+val http4sVersion = "0.23.27"
 
 lazy val hapi = (project in file("."))
   .settings(commonSettings)
@@ -20,12 +20,12 @@ lazy val hapi = (project in file("."))
       "jitpack" at "https://jitpack.io"
     )
   )
-  
+
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.typesafe"   % "config"              % "1.4.3",
-    "org.scalameta" %% "munit"               % "0.7.29" % Test,
-    "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
+    "com.typesafe"   % "config"            % "1.4.3",
+    "org.scalameta" %% "munit"             % "1.0.0" % Test,
+    "org.typelevel" %% "munit-cats-effect" % "2.0.0" % Test
   ),
   scalacOptions -= "-Xfatal-warnings"
 )
