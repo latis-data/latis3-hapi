@@ -116,7 +116,6 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
         val msg = "Start time must be less than end time." //TODO: 1404
         throw LatisException(msg)
       case n if (n < 1000) =>
-        // Technically a 1404 error
         // Add epsilon if times are within one second
         // CDAWeb seems to require it
         stopTime = startTime + 1000
