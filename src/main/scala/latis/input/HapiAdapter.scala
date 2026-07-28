@@ -113,9 +113,10 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
     // Makes sure time selection is valid
     (stopTime - startTime) match {
       case n if (n < 0) =>
-        val msg = "Start time must be less than end time."
+        val msg = "Start time must be less than end time." //TODO: 1404
         throw LatisException(msg)
       case n if (n < 1000) =>
+        // Technically a 1404 error
         // Add epsilon if times are within one second
         // CDAWeb seems to require it
         stopTime = startTime + 1000
@@ -165,7 +166,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
     val either = for {
       start <- TimeFormat.parseIso(info.startDate)
       stop  <- TimeFormat.parseIso(info.stopDate)
-    } yield (start, stop + 1000L) //pad stop time one second
+    } yield (start, stop)
     either.getOrElse {
       val msg = "Failed to get time coverage from HAPI info"
       throw LatisException(msg)
