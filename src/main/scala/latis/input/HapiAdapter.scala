@@ -155,10 +155,6 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
 
   /**
    * Gets the default time coverage from the HAPI info.
-   *
-   * The end time will be padded an extra second since the max time is
-   * specified to be exclusive and we don't want to risk missing the
-   * last sample.
    */
   def defaultTimeCoverage(): (Long, Long) = {
     val info = readInfo()
