@@ -83,7 +83,7 @@ class HapiReader {
   } yield json
 
   private def parseInfo(json: Json): Either[Throwable, Info] =
-    Decoder[Info].decodeJson(json)
+    Info.infoDecoder(Quirks.strict).decodeJson(json)
 
   private def isHapiResponse(json: Json): Boolean =
     json.hcursor.get[String]("HAPI").isRight

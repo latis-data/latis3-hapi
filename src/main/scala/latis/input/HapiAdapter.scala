@@ -3,7 +3,6 @@ package latis.input
 import java.net.URI
 
 import cats.syntax.all.*
-import io.circe.*
 import io.circe.parser.*
 
 import latis.data.Data
@@ -17,6 +16,7 @@ import latis.util.Identifier.*
 import latis.util.LatisException
 import latis.util.NetUtils
 import latis.util.hapi.Info
+import latis.util.hapi.Quirks
 
 /**
  * Adapts a HAPI service as a source of data.
@@ -146,7 +146,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
     val either = for {
       s    <- NetUtils.readUriIntoString(infoUri)
       json <- parse(s)
-      info <- Decoder[Info].decodeJson(json)
+      info <- Info.infoDecoder(config.allowStringWithoutLength).decodeJson(json)
     } yield info
     either.leftMap { e =>
       LatisException(s"Failed to read info response from $infoUri", e)
@@ -183,6 +183,12 @@ object HapiAdapter {
       val msg = "The HAPI dataset does not have an id."
       throw new RuntimeException(msg)
     }
+    val allowStringWithoutLength: Quirks = Quirks(get("allowStringWithoutLength") match {
+      case Some(str) => str.toBooleanOption.getOrElse(
+        throw LatisException("allowStringWithoutLength attribute expects a boolean string")
+      )
+      case None => false
+    })
   }
 
   /**
