@@ -44,14 +44,14 @@ final case class ArrayParameter(
 ) extends Parameter
 
 object Parameter {
-  
-  given decodeParameter: Decoder[Parameter] = new Decoder[Parameter] {
+
+  def decodeParameter(quirks: Quirks): Decoder[Parameter] = new Decoder[Parameter] {
     final def apply(c: HCursor): Decoder.Result[Parameter] = for {
       name   <- c.get[String]("name")
       tyName <- c.get[String]("type")
       units  <- c.get[Option[String]]("units")
       // Only time and string parameters have length.
-      length <- if (tyName == "string" || tyName == "isotime") {
+      length <- if ((quirks.optionalLength == false) && (tyName == "string" || tyName == "isotime")) {
         c.get[Int]("length").map(Option(_))
       } else Right(None)
       fill   <- c.get[Option[String]]("fill")

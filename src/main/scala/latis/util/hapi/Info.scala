@@ -10,6 +10,8 @@ final case class Info(
 )
 
 object Info {
-  implicit val infoDecoder: Decoder[Info] =
+  def infoDecoder(quirks: Quirks): Decoder[Info] = 
+    given paramDecoder: Decoder[Parameter] = Parameter.decodeParameter(quirks: Quirks)
+
     Decoder.forProduct3("startDate", "stopDate", "parameters")(Info.apply)
 }
