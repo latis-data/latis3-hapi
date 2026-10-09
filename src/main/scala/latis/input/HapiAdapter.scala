@@ -146,7 +146,7 @@ abstract class HapiAdapter(model: DataType, config: HapiAdapter.Config) extends 
     val either = for {
       s    <- NetUtils.readUriIntoString(infoUri)
       json <- parse(s)
-      info <- Info.infoDecoder(config.allowStringWithoutLength).decodeJson(json)
+      info <- Info.infoDecoder(config.quirks).decodeJson(json)
     } yield info
     either.leftMap { e =>
       LatisException(s"Failed to read info response from $infoUri", e)
@@ -183,12 +183,15 @@ object HapiAdapter {
       val msg = "The HAPI dataset does not have an id."
       throw new RuntimeException(msg)
     }
-    val allowStringWithoutLength: Quirks = Quirks(get("allowStringWithoutLength") match {
-      case Some(str) => str.toBooleanOption.getOrElse(
-        throw LatisException("allowStringWithoutLength attribute expects a boolean string")
-      )
-      case None => false
-    })
+    val quirks: Quirks = {
+      val optionalLength = get("allowStringWithoutLength") match {
+        case Some(str) => str.toBooleanOption.getOrElse(
+          throw LatisException("allowStringWithoutLength attribute expects a boolean string")
+        )
+        case None => false
+      }
+      Quirks(optionalLength)
+    }
   }
 
   /**

@@ -51,7 +51,7 @@ object Parameter {
       tyName <- c.get[String]("type")
       units  <- c.get[Option[String]]("units")
       // Only time and string parameters have length.
-      length <- if ((quirks.optionalLength == false) && (tyName == "string" || tyName == "isotime")) {
+      length <- if ((quirks.allowStringWithoutLength == false) && (tyName == "string" || tyName == "isotime")) {
         c.get[Int]("length").map(Option(_))
       } else Right(None)
       fill   <- c.get[Option[String]]("fill")
